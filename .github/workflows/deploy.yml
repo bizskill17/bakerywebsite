@@ -1,0 +1,46 @@
+# Uploads the website to Hostinger over FTP every time something is pushed to main.
+# Only changed files are uploaded. Files created on the server (config.php, uploads/, data/)
+# are never touched.
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # lets you run it by hand from the Actions tab
+
+concurrency:
+  group: deploy-hostinger
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+    steps:
+      - name: Check FTP password is set
+        if: env.FTP_PASSWORD == ''
+        run: |
+          echo "::warning::FTP_PASSWORD secret is missing. Add it in GitHub → Settings → Secrets and variables → Actions, then re-run this workflow."
+
+      - name: Get the code
+        if: env.FTP_PASSWORD != ''
+        uses: actions/checkout@v4
+
+      - name: Upload to Hostinger
+        if: env.FTP_PASSWORD != ''
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: 147.93.92.210
+          username: u380752258.azure-opossum-824146.hostingersite.com
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          server-dir: public_html/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            README.md
+            config.php
+            uploads/*.jpg
+            data/*.sqlite
