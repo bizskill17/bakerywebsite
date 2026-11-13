@@ -1,4 +1,5 @@
 @font-face{font-family:"Playball";src:url(../fonts/playball-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Lora";src:url(../fonts/lora-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
 @font-face{font-family:"Poppins";src:url(../fonts/poppins-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"Poppins";src:url(../fonts/poppins-latin-500-normal.woff2) format("woff2");font-weight:500;font-display:swap}
 @font-face{font-family:"Poppins";src:url(../fonts/poppins-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
@@ -178,4 +179,32 @@ pre.code{background:#2b1a1f;color:#fde6ec;border-radius:10px;padding:10px 14px;f
 @media (min-width:861px){
   .layout{align-items:start}
   .sidenav{position:sticky;top:53px;height:calc(100vh - 53px);overflow-y:auto}
+}
+
+/* ---- website logo in the admin ---- */
+:root{--topbar:74px}
+svg.spark,svg.muffin{width:1em;height:1em}
+.brand{text-decoration:none;display:block}
+.a-logo{display:inline-flex;flex-direction:column;align-items:center;line-height:1}
+.a-logo-art{position:relative;display:block;width:50px;height:20px;color:#e8628f}
+.a-logo-art .muffin{position:absolute;left:50%;top:0;width:28px;height:21px;transform:translateX(-50%)}
+.a-logo-art .spark{position:absolute;color:#f2a03a;width:10px;height:10px}
+.a-logo-art .s1{left:2px;top:5px}.a-logo-art .s2{right:2px;top:2px;width:9px;height:9px}.a-logo-art .s3{left:12px;top:13px;width:6px;height:6px;color:var(--pink)}
+.a-logo-word{font-family:"Playball",cursive;color:var(--pink);font-size:1.9rem;margin-top:-3px;white-space:nowrap}
+.a-logo-by{font-family:"Lora",Georgia,serif;font-weight:600;color:var(--ink);font-size:.72rem;margin-top:1px}
+.topbar{min-height:var(--topbar);padding-top:6px;padding-bottom:6px}
+.auth-logo{font-size:1rem}
+.a-logo.big .a-logo-art{width:84px;height:32px}
+.a-logo.big .a-logo-art .muffin{width:46px;height:35px}
+.a-logo.big .a-logo-art .spark{width:16px;height:16px}
+.a-logo.big .a-logo-art .s1{left:0;top:10px}.a-logo.big .a-logo-art .s2{right:0;top:8px}.a-logo.big .a-logo-art .s3{left:16px;top:22px;width:9px;height:9px}
+.a-logo.big .a-logo-word{font-size:3rem}
+.a-logo.big .a-logo-by{font-size:1rem}
+@media (min-width:861px){
+  .sidenav{top:var(--topbar);height:calc(100vh - var(--topbar))}
+}
+@media (max-width:860px){
+  :root{--topbar:66px}
+  .a-logo-word{font-size:1.6rem}
+  .sidenav{top:var(--topbar)}
 }
