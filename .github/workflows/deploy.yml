@@ -18,6 +18,7 @@ jobs:
       FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
       FTP_SERVER_RAW: ${{ secrets.FTP_SERVER }}
       FTP_USERNAME_RAW: ${{ secrets.FTP_USERNAME }}
+      DB_HOST: ${{ secrets.DB_HOST }}
       DB_NAME: ${{ secrets.DB_NAME }}
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -38,7 +39,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/cfg"
           php -r '
-            $c = ["driver" => "mysql", "host" => "localhost", "port" => 3306,
+            $c = ["driver" => "mysql", "host" => (trim((string)getenv("DB_HOST")) ?: "localhost"), "port" => 3306,
                   "name" => trim(getenv("DB_NAME")), "user" => trim(getenv("DB_USER")), "pass" => getenv("DB_PASSWORD")];
             $u = trim((string)getenv("ADMIN_USERNAME")); $p = (string)getenv("ADMIN_PASSWORD");
             if ($u !== "" && $p !== "") { $c["admin_user"] = $u; $c["admin_hash"] = password_hash($p, PASSWORD_DEFAULT); }

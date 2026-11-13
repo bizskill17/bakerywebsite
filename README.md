@@ -22,6 +22,7 @@ Every push to `main` uploads the site to Hostinger over FTP (`.github/workflows/
 | `FTP_SERVER` | `147.93.92.210` |
 | `FTP_USERNAME` | your FTP username from hPanel → Files → FTP Accounts |
 | `FTP_PASSWORD` | your FTP password |
+| `DB_HOST` | optional – `localhost` (default) |
 | `DB_NAME` | `u380752258_blissbites` |
 | `DB_USER` | `u380752258_blissadmin` |
 | `DB_PASSWORD` | the MySQL user's password |
