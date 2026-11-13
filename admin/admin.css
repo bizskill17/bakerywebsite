@@ -1,4 +1,5 @@
 @font-face{font-family:"Playball";src:url(../fonts/playball-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Lora";src:url(../fonts/lora-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
 @font-face{font-family:"Poppins";src:url(../fonts/poppins-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"Poppins";src:url(../fonts/poppins-latin-500-normal.woff2) format("woff2");font-weight:500;font-display:swap}
 @font-face{font-family:"Poppins";src:url(../fonts/poppins-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
@@ -179,3 +180,15 @@ pre.code{background:#2b1a1f;color:#fde6ec;border-radius:10px;padding:10px 14px;f
   .layout{align-items:start}
   .sidenav{position:sticky;top:53px;height:calc(100vh - 53px);overflow-y:auto}
 }
+
+/* website logo at the top of the left menu */
+.sidenav a.side-logo{display:flex;flex-direction:column;align-items:center;gap:0;padding:6px 0 14px;margin-bottom:8px;border-bottom:1px solid var(--line);border-radius:0;line-height:1;text-decoration:none}
+.sidenav a.side-logo:hover{background:none}
+.side-logo .a-logo-art{position:relative;display:block;width:64px;height:26px;color:#e8628f}
+.side-logo .a-logo-art svg{position:absolute;width:12px;height:12px}
+.side-logo .a-logo-art .muffin{left:50%;top:0;width:36px;height:27px;transform:translateX(-50%)}
+.side-logo .a-logo-art .spark{color:#f2a03a}
+.side-logo .a-logo-art .s1{left:2px;top:6px}.side-logo .a-logo-art .s2{right:2px;top:3px;width:10px;height:10px}.side-logo .a-logo-art .s3{left:15px;top:16px;width:7px;height:7px;color:var(--pink)}
+.side-logo .a-logo-word{font-family:"Playball",cursive;color:var(--pink);font-size:2.2rem;margin-top:-3px;white-space:nowrap}
+.side-logo .a-logo-by{font-family:"Lora",Georgia,serif;font-weight:600;color:var(--ink);font-size:.82rem;margin-top:2px}
+.side-logo .a-logo-art .muffin{color:#e8628f}

@@ -34,6 +34,15 @@ jobs:
 
       - name: Get the code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history, so each file can get its real "last changed" time
+
+      - name: Give each file its last-changed time
+        # so only files that actually changed are uploaded (and nothing disappears mid-update)
+        run: |
+          git ls-files -z | while IFS= read -r -d '' f; do
+            touch -d "$(git log -1 --format=%cI -- "$f")" "$f"
+          done
 
       - name: Build config.php from secrets
         if: env.DB_NAME != '' && env.DB_USER != '' && env.DB_PASSWORD != ''
@@ -71,7 +80,7 @@ jobs:
           set net:max-retries 8
           set net:reconnect-interval-base 5
           set net:reconnect-interval-max 30
-          mirror --reverse --verbose --parallel=2 --exclude '^\.git/' --exclude '^\.github/' --exclude '^\.gitignore$' --exclude '^README\.md$' --exclude '^config\.php$' --exclude '^uploads/.*\.jpg$' --exclude '^data/.*\.sqlite$' --exclude '^default\.php$' ./ ./
+          mirror --reverse --verbose --parallel=2 --only-newer --overwrite --exclude '^\.git/' --exclude '^\.github/' --exclude '^\.gitignore$' --exclude '^README\.md$' --exclude '^config\.php$' --exclude '^uploads/.*\.jpg$' --exclude '^data/.*\.sqlite$' --exclude '^default\.php$' ./ ./
           rm -r -f .git
           EOF
 

@@ -54,8 +54,9 @@ function admin_header(string $title, string $active): void {
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title><?= h($title) ?> · Bliss Bites Admin</title>
 <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="admin.css?v=3"></head>
+<link rel="stylesheet" href="admin.css?v=5"></head>
 <body>
+<?php readfile(dirname(__DIR__) . '/inc/icons.svg'); ?>
 <header class="topbar">
   <button class="nav-toggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
   <a class="brand" href="index.php">Bliss Bites</a>
@@ -65,6 +66,11 @@ function admin_header(string $title, string $active): void {
 </header>
 <div class="layout">
   <nav class="sidenav">
+    <a class="side-logo" href="index.php" aria-label="Bliss Bites – dashboard">
+      <span class="a-logo-art"><svg class="spark s1"><use href="#i-sparkle"/></svg><svg class="spark s2"><use href="#i-sparkle"/></svg><svg class="spark s3"><use href="#i-sparkle"/></svg><svg class="muffin"><use href="#i-muffin"/></svg></span>
+      <span class="a-logo-word">Bliss Bites</span>
+      <span class="a-logo-by">by Nutan Jain</span>
+    </a>
     <?php foreach ($nav as $file => [$label, $path]): ?>
       <a href="<?= $file ?>" class="<?= $active === $file ? 'active' : '' ?>">
         <svg viewBox="0 0 24 24"><path d="<?= $path ?>" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
