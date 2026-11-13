@@ -79,4 +79,7 @@ jobs:
           fi
 
           lftp -u "$user" --env-password -e "source $script; bye" "$server"
+
+          echo "----- what is on the server -----"
+          lftp -u "$user" --env-password -e "set ftp:ssl-allow yes; set ssl:verify-certificate no; pwd; echo '[root]'; cls -1a; echo '[public_html]'; cls -1a public_html/ ; echo '[public_html/public_html]'; cls -1a public_html/public_html/; bye" "$server" || true
           echo "✅ Website uploaded to Hostinger"
