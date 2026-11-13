@@ -59,7 +59,6 @@ function admin_header(string $title, string $active): void {
 <?php readfile(dirname(__DIR__) . '/inc/icons.svg'); ?>
 <header class="topbar">
   <button class="nav-toggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
-  <a class="brand" href="index.php">Bliss Bites</a>
   <div class="topbar-right">
     <a class="btn ghost sm" href="../" target="_blank">View website ↗</a>
   </div>
