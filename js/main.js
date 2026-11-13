@@ -28,14 +28,21 @@ document.querySelectorAll(".car-btn").forEach(btn =>
   })
 );
 
-// Highlight current section in desktop nav
+// "Home" and the logo always scroll right back to the top
+document.querySelectorAll('a[href="#top"]').forEach(a =>
+  a.addEventListener("click", e => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    history.replaceState(null, "", location.pathname + location.search);
+  })
+);
+
+// Highlight the menu item for the section you're looking at
 const links = [...document.querySelectorAll(".main-nav a")];
-const sections = links.map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+const targetOf = a => a.getAttribute("href") === "#top" ? document.querySelector(".hero") : document.querySelector(a.getAttribute("href"));
+const setActive = el => links.forEach(l => l.classList.toggle("active", targetOf(l) === el));
 const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      links.forEach(l => l.classList.toggle("active", l.getAttribute("href") === "#" + e.target.id));
-    }
-  });
+  entries.forEach(e => { if (e.isIntersecting) setActive(e.target); });
 }, { rootMargin: "-45% 0px -50% 0px" });
-sections.forEach(s => obs.observe(s));
+links.map(targetOf).filter(Boolean).forEach(s => obs.observe(s));
+window.addEventListener("scroll", () => { if (window.scrollY < 40) setActive(document.querySelector(".hero")); }, { passive: true });

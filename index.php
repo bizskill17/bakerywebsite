@@ -42,15 +42,15 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
   <meta name="description" content="Bliss Bites by Nutan Jain – a home-based bakery in <?= h($deliveryArea) ?>. Homemade brownies, brownie cakes, dry cakes and more, baked with love.">
   <meta name="theme-color" content="#c2185b">
   <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=4">
   <style>.hero-img{background-image:url("<?= h($heroImg) ?>")}</style>
 </head>
-<body>
+<body id="top">
 
 <?php readfile(__DIR__ . '/inc/icons.svg'); ?>
 
 <!-- ============ HEADER ============ -->
-<header class="site-header" id="top">
+<header class="site-header">
   <div class="container header-inner">
     <button class="icon-btn menu-toggle" aria-label="Open menu" aria-expanded="false">
       <svg><use href="#i-menu"/></svg>
@@ -279,7 +279,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
   </div>
 </footer>
 
-<script src="js/main.js?v=2"></script>
+<script src="js/main.js?v=3"></script>
 </body>
 </html>
 <?php ig_sync_after_response();
