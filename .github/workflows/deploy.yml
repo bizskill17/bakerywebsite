@@ -1,6 +1,5 @@
 # Uploads the website to Hostinger over FTP every time something is pushed to main.
-# Only changed files are uploaded. Files created on the server (config.php, uploads/, data/)
-# are never touched.
+# Files created on the server (config.php, uploads/ photos, data/) are never touched or deleted.
 name: Deploy to Hostinger
 
 on:
@@ -20,38 +19,41 @@ jobs:
       FTP_SERVER_RAW: ${{ secrets.FTP_SERVER }}
       FTP_USERNAME_RAW: ${{ secrets.FTP_USERNAME }}
     steps:
-      - name: Check FTP password is set
-        if: env.FTP_PASSWORD == ''
+      - name: Check secrets are set
+        if: env.FTP_PASSWORD == '' || env.FTP_SERVER_RAW == '' || env.FTP_USERNAME_RAW == ''
         run: |
-          echo "::warning::FTP_PASSWORD secret is missing. Add it in GitHub → Settings → Secrets and variables → Actions, then re-run this workflow."
-
-      - name: Clean up server name and username
-        if: env.FTP_PASSWORD != ''
-        run: |
-          # accept "ftp://147.93.92.210", "147.93.92.210/" or with spaces
-          server=$(echo "$FTP_SERVER_RAW" | sed -E 's#^[a-z]+://##; s#/.*$##; s/[[:space:]]//g')
-          user=$(echo "$FTP_USERNAME_RAW" | tr -d '[:space:]')
-          echo "FTP_SERVER=$server" >> "$GITHUB_ENV"
-          echo "FTP_USERNAME=$user" >> "$GITHUB_ENV"
+          echo "::error::Add FTP_SERVER, FTP_USERNAME and FTP_PASSWORD in GitHub → Settings → Secrets and variables → Actions."
+          exit 1
 
       - name: Get the code
-        if: env.FTP_PASSWORD != ''
         uses: actions/checkout@v4
 
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
       - name: Upload to Hostinger
-        if: env.FTP_PASSWORD != ''
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ env.FTP_SERVER }}
-          username: ${{ env.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          server-dir: public_html/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            .github/**
-            README.md
-            config.php
-            uploads/*.jpg
-            data/*.sqlite
+        run: |
+          # accept "ftp://147.93.92.210", "147.93.92.210/" or values with stray spaces
+          server=$(printf '%s' "$FTP_SERVER_RAW" | sed -E 's#^[a-z]+://##; s#/.*$##; s/[[:space:]]//g')
+          user=$(printf '%s' "$FTP_USERNAME_RAW" | tr -d '[:space:]')
+          export LFTP_PASSWORD="$FTP_PASSWORD"
+
+          lftp -u "$user" --env-password "$server" <<'EOF'
+          set ftp:ssl-allow yes
+          set ssl:verify-certificate no
+          set ftp:passive-mode on
+          set net:timeout 30
+          set net:max-retries 8
+          set net:reconnect-interval-base 5
+          set net:reconnect-interval-max 30
+          mirror --reverse --verbose --parallel=2 \
+            --exclude-glob .git* \
+            --exclude-glob .github/ \
+            --exclude-glob README.md \
+            --exclude-glob config.php \
+            --exclude-glob uploads/*.jpg \
+            --exclude-glob data/*.sqlite \
+            ./ public_html/
+          bye
+          EOF
+          echo "✅ Website uploaded to Hostinger"
