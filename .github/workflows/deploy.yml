@@ -58,7 +58,9 @@ jobs:
           # accept "ftp://147.93.92.210", "147.93.92.210/" or values with stray spaces
           server=$(printf '%s' "$FTP_SERVER_RAW" | sed -E 's#^[a-z]+://##; s#/.*$##; s/[[:space:]]//g')
           user=$(printf '%s' "$FTP_USERNAME_RAW" | tr -d '[:space:]')
-          export LFTP_PASSWORD="$FTP_PASSWORD"
+          # ignore an accidental line break / space pasted at the end of the password
+          export LFTP_PASSWORD="$(printf '%s' "$FTP_PASSWORD" | sed -e 's/[[:space:]]*$//')"
+          echo "FTP login: user ends with '...${user: -24}', server '$server'"
           script="$RUNNER_TEMP/deploy.lftp"
 
           cat > "$script" <<'EOF'
