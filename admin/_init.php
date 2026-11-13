@@ -58,7 +58,7 @@ function admin_header(string $title, string $active): void {
 <body>
 <header class="topbar">
   <button class="nav-toggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
-  <a class="brand" href="index.php">Bliss Bites <small>Admin</small></a>
+  <a class="brand" href="index.php">Bliss Bites</a>
   <div class="topbar-right">
     <a class="btn ghost sm" href="../" target="_blank">View website ↗</a>
   </div>
