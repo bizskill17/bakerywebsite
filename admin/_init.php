@@ -54,14 +54,11 @@ function admin_header(string $title, string $active): void {
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title><?= h($title) ?> · Bliss Bites Admin</title>
 <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="admin.css?v=5"></head>
+<link rel="stylesheet" href="admin.css?v=6"></head>
 <body>
 <?php readfile(dirname(__DIR__) . '/inc/icons.svg'); ?>
 <header class="topbar">
   <button class="nav-toggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
-  <div class="topbar-right">
-    <a class="btn ghost sm" href="../" target="_blank">View website ↗</a>
-  </div>
 </header>
 <div class="layout">
   <nav class="sidenav">
@@ -89,7 +86,13 @@ function admin_header(string $title, string $active): void {
     </div>
   </nav>
   <main class="content">
-    <h1><?= h($title) ?></h1>
+    <div class="page-head">
+      <h1><?= h($title) ?></h1>
+      <a class="btn ghost sm view-site" href="../" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        View website
+      </a>
+    </div>
     <?php foreach (flash() as [$type, $msg]): ?><div class="alert <?= h($type) ?>"><?= h($msg) ?></div><?php endforeach; ?>
 <?php
 }

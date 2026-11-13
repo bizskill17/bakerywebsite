@@ -192,3 +192,22 @@ pre.code{background:#2b1a1f;color:#fde6ec;border-radius:10px;padding:10px 14px;f
 .side-logo .a-logo-word{font-family:"Playball",cursive;color:var(--pink);font-size:2.2rem;margin-top:-3px;white-space:nowrap}
 .side-logo .a-logo-by{font-family:"Lora",Georgia,serif;font-weight:600;color:var(--ink);font-size:.82rem;margin-top:2px}
 .side-logo .a-logo-art .muffin{color:#e8628f}
+
+/* page title row with "View website" on the right */
+.page-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px}
+.page-head h1{margin-bottom:0}
+.btn.view-site svg{width:16px;height:16px}
+
+/* computers: no top bar – the side menu runs the full height */
+@media (min-width:861px){
+  .topbar{display:none}
+  .layout{min-height:100vh}
+  .sidenav{top:0;height:100vh}
+  .content{padding-top:30px}
+}
+/* phones: slim bar just for the menu button */
+@media (max-width:860px){
+  .topbar{min-height:52px;padding:6px 12px}
+  .sidenav{top:52px}
+  .page-head h1{font-size:1.35rem}
+}

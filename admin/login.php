@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?><!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title>Log in · Bliss Bites Admin</title>
-<link rel="icon" href="../images/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="admin.css?v=5"></head>
+<link rel="icon" href="../images/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="admin.css?v=6"></head>
 <body class="auth-page">
   <form class="auth-card" method="post">
     <div class="auth-logo">Bliss Bites<small>Admin panel</small></div>
