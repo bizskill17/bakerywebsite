@@ -17,11 +17,22 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+      FTP_SERVER_RAW: ${{ secrets.FTP_SERVER }}
+      FTP_USERNAME_RAW: ${{ secrets.FTP_USERNAME }}
     steps:
       - name: Check FTP password is set
         if: env.FTP_PASSWORD == ''
         run: |
           echo "::warning::FTP_PASSWORD secret is missing. Add it in GitHub → Settings → Secrets and variables → Actions, then re-run this workflow."
+
+      - name: Clean up server name and username
+        if: env.FTP_PASSWORD != ''
+        run: |
+          # accept "ftp://147.93.92.210", "147.93.92.210/" or with spaces
+          server=$(echo "$FTP_SERVER_RAW" | sed -E 's#^[a-z]+://##; s#/.*$##; s/[[:space:]]//g')
+          user=$(echo "$FTP_USERNAME_RAW" | tr -d '[:space:]')
+          echo "FTP_SERVER=$server" >> "$GITHUB_ENV"
+          echo "FTP_USERNAME=$user" >> "$GITHUB_ENV"
 
       - name: Get the code
         if: env.FTP_PASSWORD != ''
@@ -31,8 +42,8 @@ jobs:
         if: env.FTP_PASSWORD != ''
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: 147.93.92.210
-          username: u380752258.azure-opossum-824146.hostingersite.com
+          server: ${{ env.FTP_SERVER }}
+          username: ${{ env.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
           server-dir: public_html/
