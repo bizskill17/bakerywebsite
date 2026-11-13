@@ -16,6 +16,9 @@ function create_schema(PDO $pdo, string $driver): void {
         "CREATE TABLE IF NOT EXISTS enquiries (id $id, name VARCHAR(120) NOT NULL, phone VARCHAR(30) NOT NULL, item VARCHAR(120) DEFAULT '',
             quantity VARCHAR(60) DEFAULT '', needed_by VARCHAR(20) DEFAULT '', message TEXT, status VARCHAR(20) NOT NULL DEFAULT 'new',
             ip VARCHAR(64) DEFAULT '', created_at VARCHAR(19) NOT NULL)$end",
+        "CREATE TABLE IF NOT EXISTS instagram_media (id $id, ig_id VARCHAR(64) NOT NULL UNIQUE, kind VARCHAR(10) NOT NULL,
+            caption TEXT, permalink VARCHAR(255) DEFAULT '', image VARCHAR(255) NOT NULL, taken_at VARCHAR(30) DEFAULT '',
+            sort_order INT NOT NULL DEFAULT 0)$end",
         "CREATE TABLE IF NOT EXISTS login_attempts (id $id, ip VARCHAR(64) NOT NULL, attempted_at INT NOT NULL)$end",
     ];
     foreach ($sql as $s) $pdo->exec($s);

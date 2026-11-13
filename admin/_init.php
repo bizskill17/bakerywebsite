@@ -38,6 +38,7 @@ function admin_header(string $title, string $active): void {
         'menu.php'      => ['Menu Items', 'M5 12h14l-2 8H7zM4.5 12a3 3 0 0 1 2-4.6A5.5 5.5 0 0 1 17.5 7.4a3 3 0 0 1 2 4.6'],
         'gallery.php'   => ['Gallery', 'M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9.5a1.5 1.5 0 1 0 0-.1'],
         'stories.php'   => ['Baking Stories', 'M3 9h18v11H3zM10 12.5v5l4.2-2.5zM3 9l-.6-3.2 16.7-3 .6 3.2'],
+        'instagram.php' => ['Instagram Sync', 'M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM17.5 6.5h.01'],
         'settings.php'  => ['Website Content', 'M4 6h16M4 12h16M4 18h10'],
         'account.php'   => ['My Account', 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0'],
     ];
@@ -45,7 +46,7 @@ function admin_header(string $title, string $active): void {
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title><?= h($title) ?> · Bliss Bites Admin</title>
 <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="admin.css?v=1"></head>
+<link rel="stylesheet" href="admin.css?v=2"></head>
 <body>
 <header class="topbar">
   <button class="nav-toggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>

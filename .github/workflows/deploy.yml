@@ -24,6 +24,7 @@ jobs:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      INSTAGRAM_TOKEN: ${{ secrets.INSTAGRAM_TOKEN }}
     steps:
       - name: Check secrets are set
         if: env.FTP_PASSWORD == '' || env.FTP_SERVER_RAW == '' || env.FTP_USERNAME_RAW == ''
@@ -43,6 +44,7 @@ jobs:
                   "name" => trim(getenv("DB_NAME")), "user" => trim(getenv("DB_USER")), "pass" => getenv("DB_PASSWORD")];
             $u = trim((string)getenv("ADMIN_USERNAME")); $p = (string)getenv("ADMIN_PASSWORD");
             if ($u !== "" && $p !== "") { $c["admin_user"] = $u; $c["admin_hash"] = password_hash($p, PASSWORD_DEFAULT); }
+            $t = preg_replace("/\\s+/", "", (string)getenv("INSTAGRAM_TOKEN")); if ($t !== "") $c["instagram_token"] = $t;
             file_put_contents(getenv("RUNNER_TEMP") . "/cfg/config.php",
               "<?php\n// Written by GitHub Actions from repository secrets. Do not edit on the server.\nreturn " . var_export($c, true) . ";\n");
           '

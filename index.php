@@ -1,10 +1,20 @@
 <?php
 declare(strict_types=1);
 require __DIR__ . '/inc/bootstrap.php';
+require __DIR__ . '/inc/instagram.php';
 
 $menu    = q('SELECT * FROM menu_items ORDER BY sort_order, id')->fetchAll();
 $gallery = q('SELECT * FROM gallery ORDER BY sort_order, id LIMIT 5')->fetchAll();
 $stories = q('SELECT * FROM stories ORDER BY sort_order, id')->fetchAll();
+
+// When Instagram sync is on, show the latest Instagram posts instead of the manual photos
+if (ig_enabled()) {
+    $igPhotos = q("SELECT image, caption, permalink AS link FROM instagram_media WHERE kind = 'photo' ORDER BY sort_order LIMIT 5")->fetchAll();
+    $igReels  = q("SELECT image, caption, permalink AS link FROM instagram_media WHERE kind = 'reel' ORDER BY sort_order LIMIT 10")->fetchAll();
+    if ($igPhotos) $gallery = $igPhotos;
+    if ($igReels)  $stories = $igReels;
+}
+$shortCap = fn(?string $c, string $fallback) => ($c = trim(preg_replace('/\s+/', ' ', (string)$c))) !== '' ? mb_strimwidth($c, 0, 110, '…') : $fallback;
 
 $wa = whatsapp_link();
 $ig = instagram_link();
@@ -32,7 +42,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
   <meta name="description" content="Bliss Bites by Nutan Jain – a home-based bakery in <?= h($deliveryArea) ?>. Homemade brownies, brownie cakes, dry cakes and more, baked with love.">
   <meta name="theme-color" content="#c2185b">
   <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/style.css?v=2">
+  <link rel="stylesheet" href="css/style.css?v=3">
   <style>.hero-img{background-image:url("<?= h($heroImg) ?>")}</style>
 </head>
 <body>
@@ -174,7 +184,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
         <span class="burst l desktop-only"></span>
         <div class="gallery-grid">
           <?php foreach ($gallery as $g): ?>
-          <a href="<?= h($ig) ?>" target="_blank" rel="noopener"><img src="<?= h($g['image']) ?>" alt="<?= h($g['caption'] ?: 'Bliss Bites bake') ?>" loading="lazy"></a>
+          <a href="<?= h(($g['link'] ?? '') ?: $ig) ?>" target="_blank" rel="noopener"><img src="<?= h($g['image']) ?>" alt="<?= h($shortCap($g['caption'], 'Bliss Bites bake')) ?>" loading="lazy"></a>
           <?php endforeach; ?>
         </div>
         <span class="burst r desktop-only"></span>
@@ -196,7 +206,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
         <button class="car-btn prev" aria-label="Previous"><svg><use href="#i-chev-l"/></svg></button>
         <div class="car-track">
           <?php foreach ($stories as $s): ?>
-          <a class="story" href="<?= h($s['link'] ?: $ig) ?>" target="_blank" rel="noopener"><img src="<?= h($s['image']) ?>" alt="<?= h(($s['caption'] ?: 'Baking story') . ' – video') ?>" loading="lazy"></a>
+          <a class="story<?= isset($igReels) && $igReels ? ' is-ig' : '' ?>" href="<?= h($s['link'] ?: $ig) ?>" target="_blank" rel="noopener"><img src="<?= h($s['image']) ?>" alt="<?= h($shortCap($s['caption'], 'Baking story') . ' – video') ?>" loading="lazy"></a>
           <?php endforeach; ?>
         </div>
         <button class="car-btn next" aria-label="Next"><svg><use href="#i-chev-r"/></svg></button>
@@ -272,3 +282,4 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
 <script src="js/main.js?v=2"></script>
 </body>
 </html>
+<?php ig_sync_after_response();

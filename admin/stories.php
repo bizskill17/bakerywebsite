@@ -48,6 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $rows = q('SELECT * FROM stories ORDER BY sort_order, id')->fetchAll();
 admin_header('Baking Stories', 'stories.php');
 ?>
+<?php if (setting('instagram_sync') === '1' && setting('instagram_token') !== ''): ?>
+  <div class="alert warn">Instagram sync is ON, so your website shows your latest Instagram reels here instead. These photos are used only if sync is off or finds none. <a href="instagram.php">Instagram Sync →</a></div>
+<?php endif; ?>
 <p class="muted intro">Each story is a cover photo that opens your Instagram reel (or YouTube video) when tapped. Copy the reel's link from Instagram (⋯ → Copy link) and paste it here. Leave the link empty to open your Instagram profile.</p>
 
 <form class="panel form" method="post" enctype="multipart/form-data">

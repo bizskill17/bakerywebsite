@@ -6,9 +6,10 @@ date_default_timezone_set('Asia/Kolkata');
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB
 const IMAGE_MAX_SIDE   = 1600;             // px – larger photos are resized
+const SCHEMA_VERSION   = 2;
 
 /* ---------- session ---------- */
-if (session_status() !== PHP_SESSION_ACTIVE) {
+if (PHP_SAPI !== 'cli' && session_status() !== PHP_SESSION_ACTIVE) {
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
           || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
     session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax', 'secure' => $https, 'path' => '/']);
@@ -65,6 +66,14 @@ function ensure_setup(PDO $pdo, array $c): void {
         create_schema($pdo, $c['driver'] ?? 'mysql');
         seed_content($pdo);
         $admins = 0;
+    }
+    // add tables introduced in later versions
+    $ver = (int)($pdo->query("SELECT v FROM settings WHERE k = 'schema_version'")->fetchColumn() ?: 0);
+    if ($ver < SCHEMA_VERSION) {
+        require_once __DIR__ . '/schema.php';
+        create_schema($pdo, $c['driver'] ?? 'mysql');
+        $pdo->prepare('DELETE FROM settings WHERE k = ?')->execute(['schema_version']);
+        $pdo->prepare('INSERT INTO settings (k, v) VALUES (?, ?)')->execute(['schema_version', (string)SCHEMA_VERSION]);
     }
     if ($admins === 0 && !empty($c['admin_user']) && !empty($c['admin_hash'])) {
         $pdo->prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)')->execute([$c['admin_user'], $c['admin_hash']]);
@@ -176,19 +185,24 @@ function save_image(array $f): string {
     if ($f['size'] > MAX_UPLOAD_BYTES) throw new RuntimeException('The photo is too large (max 10 MB).');
     if (!is_uploaded_file($f['tmp_name']) && PHP_SAPI !== 'cli') throw new RuntimeException('Invalid upload.');
 
-    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
+    return save_image_file($f['tmp_name']);
+}
+
+/** Re-encodes any image file as a resized JPEG in uploads/ and returns its path. */
+function save_image_file(string $path, string $prefix = ''): string {
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($path);
     $src = match ($mime) {
-        'image/jpeg' => @imagecreatefromjpeg($f['tmp_name']),
-        'image/png'  => @imagecreatefrompng($f['tmp_name']),
-        'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($f['tmp_name']) : false,
-        'image/gif'  => @imagecreatefromgif($f['tmp_name']),
+        'image/jpeg' => @imagecreatefromjpeg($path),
+        'image/png'  => @imagecreatefrompng($path),
+        'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($path) : false,
+        'image/gif'  => @imagecreatefromgif($path),
         default      => false,
     };
     if (!$src) throw new RuntimeException('Please upload a JPG, PNG or WEBP photo.');
 
     // Fix sideways phone photos
     if ($mime === 'image/jpeg' && function_exists('exif_read_data')) {
-        $exif = @exif_read_data($f['tmp_name']);
+        $exif = @exif_read_data($path);
         $rot = [3 => 180, 6 => -90, 8 => 90][$exif['Orientation'] ?? 1] ?? 0;
         if ($rot) $src = imagerotate($src, $rot, 0);
     }
@@ -202,7 +216,7 @@ function save_image(array $f): string {
 
     $dir = ROOT . '/uploads';
     if (!is_dir($dir)) mkdir($dir, 0755, true);
-    $rel = 'uploads/' . date('Y-m') . '-' . bin2hex(random_bytes(8)) . '.jpg';
+    $rel = 'uploads/' . $prefix . date('Y-m') . '-' . bin2hex(random_bytes(8)) . '.jpg';
     if (!imagejpeg($dst, ROOT . '/' . $rel, 85)) throw new RuntimeException('Could not save the photo. Check that the uploads folder is writable.');
     imagedestroy($src); imagedestroy($dst);
     return $rel;

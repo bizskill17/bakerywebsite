@@ -28,6 +28,7 @@ Every push to `main` uploads the site to Hostinger over FTP (`.github/workflows/
 | `DB_PASSWORD` | the MySQL user's password |
 | `ADMIN_USERNAME` | the username you'll log in to `/admin` with |
 | `ADMIN_PASSWORD` | your admin password (8+ characters) |
+| `INSTAGRAM_TOKEN` | optional – Instagram access token for automatic sync (or paste it in the admin panel) |
 
 4. **GitHub → Actions → Deploy to Hostinger → Run workflow.**
 5. Open your website. On the first visit it creates its database tables, starter content and your admin login by itself. Log in at `/admin`.
@@ -46,6 +47,7 @@ Notes
 | **Menu Items** | Add, edit, delete, reorder; photo, price, description; mark *Sold out* |
 | **Gallery** | Upload several photos at once, reorder, delete (first 5 appear on the site) |
 | **Baking Stories** | Cover photo + link to an Instagram reel / YouTube video |
+| **Instagram Sync** | Shows your latest Instagram photos (Gallery) and reels (Baking Stories) automatically, every 5 minutes, plus a *Sync now* button. Needs a Business/Creator account and an access token – step-by-step help is on that page |
 | **Website Content** | WhatsApp number, Instagram, delivery city, banner text, About text, main photos |
 | **My Account** | Change admin username / password |
 

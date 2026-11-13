@@ -308,3 +308,9 @@ svg{width:1em;height:1em;flex:none}
   .menu-grid{display:flex;flex-wrap:wrap;justify-content:center}
   .menu-card{flex:0 1 calc((100% - 3*18px)/4)}
 }
+
+/* Instagram reel covers don't have a play icon baked in – add one */
+.story{position:relative}
+.story.is-ig::after{content:"";position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;
+  background:rgba(0,0,0,.35) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 6.5v11l9-5.5z' fill='%23fff'/%3E%3C/svg%3E") center/26px no-repeat;
+  border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25)}

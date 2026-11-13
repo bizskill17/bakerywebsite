@@ -38,6 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $rows = q('SELECT * FROM gallery ORDER BY sort_order, id')->fetchAll();
 admin_header('Instagram Gallery', 'gallery.php');
 ?>
+<?php if (setting('instagram_sync') === '1' && setting('instagram_token') !== ''): ?>
+  <div class="alert warn">Instagram sync is ON, so your website shows your latest Instagram photos here instead. These photos are used only if sync is off or finds none. <a href="instagram.php">Instagram Sync →</a></div>
+<?php endif; ?>
 <form class="panel upload-box" method="post" enctype="multipart/form-data">
   <?= csrf_field() ?><input type="hidden" name="action" value="upload">
   <div>
