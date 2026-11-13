@@ -67,13 +67,15 @@ jobs:
           set net:max-retries 8
           set net:reconnect-interval-base 5
           set net:reconnect-interval-max 30
-          mirror --reverse --verbose --parallel=2 --exclude '^\.git/' --exclude '^\.github/' --exclude '^\.gitignore$' --exclude '^README\.md$' --exclude '^config\.php$' --exclude '^uploads/.*\.jpg$' --exclude '^data/.*\.sqlite$' ./ public_html/
-          rm -r -f public_html/.git
+          mirror --reverse --verbose --parallel=2 --exclude '^\.git/' --exclude '^\.github/' --exclude '^\.gitignore$' --exclude '^README\.md$' --exclude '^config\.php$' --exclude '^uploads/.*\.jpg$' --exclude '^data/.*\.sqlite$' --exclude '^default\.php$' ./ ./
+          rm -r -f .git
+          # one-time cleanup: copy uploaded to the wrong folder earlier
+          rm -r -f public_html
           EOF
 
           # settings file built from secrets (only when the DB secrets exist)
           if [ -f "$RUNNER_TEMP/cfg/config.php" ]; then
-            echo "put $RUNNER_TEMP/cfg/config.php -o public_html/config.php" >> "$script"
+            echo "put $RUNNER_TEMP/cfg/config.php -o config.php" >> "$script"
           else
             echo "::notice::DB secrets not set – leaving config.php on the server unchanged."
           fi
@@ -81,5 +83,5 @@ jobs:
           lftp -u "$user" --env-password -e "source $script; bye" "$server"
 
           echo "----- what is on the server -----"
-          lftp -u "$user" --env-password -e "set ftp:ssl-allow yes; set ssl:verify-certificate no; pwd; echo '[root]'; cls -1a; echo '[public_html]'; cls -1a public_html/ ; echo '[public_html/public_html]'; cls -1a public_html/public_html/; bye" "$server" || true
+          lftp -u "$user" --env-password -e "set ftp:ssl-allow yes; set ssl:verify-certificate no; pwd; echo '[website folder]'; cls -1a; echo '[public_html]'; bye" "$server" || true
           echo "✅ Website uploaded to Hostinger"
