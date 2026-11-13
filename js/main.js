@@ -1,17 +1,4 @@
-/* =========================================================
-   EDIT THESE TWO LINES with your real details
-   ========================================================= */
-const WHATSAPP_NUMBER = "91XXXXXXXXXX";   // country code + number, no + or spaces, e.g. 919876543210
-const INSTAGRAM_HANDLE = "blissbites";    // your Instagram username, without @
-const WHATSAPP_MESSAGE = "Hi Bliss Bites! I'd like to place an order.";
-/* ========================================================= */
-
-const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
-const igLink = `https://instagram.com/${INSTAGRAM_HANDLE}`;
-
-document.querySelectorAll(".js-whatsapp").forEach(a => (a.href = waLink));
-document.querySelectorAll(".js-instagram").forEach(a => (a.href = igLink));
-document.querySelectorAll(".js-year").forEach(el => (el.textContent = new Date().getFullYear()));
+// Bliss Bites – small interactions. Links and content come from the admin panel.
 
 // Mobile menu drawer
 const toggle = document.querySelector(".menu-toggle");

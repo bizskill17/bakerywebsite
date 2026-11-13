@@ -1,0 +1,17 @@
+Options -Indexes
+DirectoryIndex index.php index.html
+
+<FilesMatch "^(config\.php|README\.md|\.git.*)$">
+  Require all denied
+</FilesMatch>
+RedirectMatch 404 /\.git
+
+# Cache static files for a week
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpeg "access plus 7 days"
+  ExpiresByType image/svg+xml "access plus 7 days"
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType font/woff2 "access plus 30 days"
+</IfModule>
