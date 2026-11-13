@@ -47,13 +47,16 @@ jobs:
           set net:reconnect-interval-base 5
           set net:reconnect-interval-max 30
           mirror --reverse --verbose --parallel=2 \
-            --exclude-glob .git* \
-            --exclude-glob .github/ \
-            --exclude-glob README.md \
-            --exclude-glob config.php \
-            --exclude-glob uploads/*.jpg \
-            --exclude-glob data/*.sqlite \
+            --exclude '^\.git/' \
+            --exclude '^\.github/' \
+            --exclude '^\.gitignore$' \
+            --exclude '^README\.md$' \
+            --exclude '^config\.php$' \
+            --exclude '^uploads/.*\.jpg$' \
+            --exclude '^data/.*\.sqlite$' \
             ./ public_html/
+          # never keep Git's internal folder on the web server
+          rm -r -f public_html/.git
           bye
           EOF
           echo "✅ Website uploaded to Hostinger"
