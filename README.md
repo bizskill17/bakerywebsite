@@ -9,19 +9,32 @@ Built with plain PHP 8.1+ and MySQL – runs on Hostinger shared hosting. No bui
 
 ---
 
-## Setting it up on Hostinger (one time, ~10 minutes)
+## Setting it up on Hostinger (automatic, via GitHub Actions)
 
-1. **Create a database** – hPanel → *Databases* → *MySQL Databases*. Create a new database and user, and note down the **database name**, **user** and **password**.
-2. **Put the code on your site** – hPanel → *Websites* → *Advanced* → *GIT*.
-   Repository: `https://github.com/bizskill17/bakerywebsite.git`, Branch: `main`, Directory: leave empty (installs into `public_html`).
-   Click **Create**, then **Deploy**. (If `public_html` already has files, empty it first.)
-   *Turn on Auto Deployment* if you want every GitHub change to go live automatically.
-3. **PHP version** – hPanel → *Advanced* → *PHP Configuration*: choose **8.1 or newer**.
-4. **Run the setup** – open `https://yourdomain.com/install.php`. Enter the database details from step 1 and choose your admin username and password. Click **Set up website**.
-5. **Delete `install.php`** – hPanel → *File Manager* → `public_html` → delete `install.php`. (It locks itself after setup anyway, but it's safer gone.)
-6. **Log in** at `https://yourdomain.com/admin` and go to **Website Content** to add your WhatsApp number and Instagram username.
+Every push to `main` uploads the site to Hostinger over FTP (`.github/workflows/deploy.yml`).
 
-> `config.php` (your database password) and the `uploads/` folder (your photos) are created on the server and are **not** stored in GitHub, so future deployments never overwrite them.
+1. **hPanel → Databases → MySQL Databases:** create a database and user.
+2. **hPanel → Advanced → PHP Configuration:** choose PHP **8.1 or newer**.
+3. **GitHub → Settings → Secrets and variables → Actions:** add these repository secrets:
+
+| Secret | Example |
+|---|---|
+| `FTP_SERVER` | `147.93.92.210` |
+| `FTP_USERNAME` | your FTP username from hPanel → Files → FTP Accounts |
+| `FTP_PASSWORD` | your FTP password |
+| `DB_NAME` | `u380752258_blissbites` |
+| `DB_USER` | `u380752258_blissadmin` |
+| `DB_PASSWORD` | the MySQL user's password |
+| `ADMIN_USERNAME` | the username you'll log in to `/admin` with |
+| `ADMIN_PASSWORD` | your admin password (8+ characters) |
+
+4. **GitHub → Actions → Deploy to Hostinger → Run workflow.**
+5. Open your website. On the first visit it creates its database tables, starter content and your admin login by itself. Log in at `/admin`.
+
+Notes
+- `ADMIN_USERNAME`/`ADMIN_PASSWORD` only create the *first* login. To change your password later, use **My Account** in the admin panel.
+- Your uploaded photos (`uploads/`) and the database are never touched by deployments.
+- `install.php` is an alternative manual setup; it locks itself once `config.php` exists.
 
 ## What you can do in the admin panel
 

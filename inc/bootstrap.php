@@ -45,7 +45,30 @@ function make_pdo(array $c): PDO {
 
 function db(): PDO {
     static $pdo = null;
-    return $pdo ??= make_pdo(config());
+    if ($pdo === null) {
+        $c = config();
+        $pdo = make_pdo($c);
+        ensure_setup($pdo, $c);
+    }
+    return $pdo;
+}
+
+/**
+ * First visit after an automatic deploy: create the tables, starter content and
+ * the admin login from config.php (written by GitHub Actions from your secrets).
+ */
+function ensure_setup(PDO $pdo, array $c): void {
+    try {
+        $admins = (int)$pdo->query('SELECT COUNT(*) FROM admins')->fetchColumn();
+    } catch (PDOException) {
+        require_once __DIR__ . '/schema.php';
+        create_schema($pdo, $c['driver'] ?? 'mysql');
+        seed_content($pdo);
+        $admins = 0;
+    }
+    if ($admins === 0 && !empty($c['admin_user']) && !empty($c['admin_hash'])) {
+        $pdo->prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)')->execute([$c['admin_user'], $c['admin_hash']]);
+    }
 }
 
 function q(string $sql, array $params = []): PDOStatement {

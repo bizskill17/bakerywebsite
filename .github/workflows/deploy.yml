@@ -18,6 +18,11 @@ jobs:
       FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
       FTP_SERVER_RAW: ${{ secrets.FTP_SERVER }}
       FTP_USERNAME_RAW: ${{ secrets.FTP_USERNAME }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
     steps:
       - name: Check secrets are set
         if: env.FTP_PASSWORD == '' || env.FTP_SERVER_RAW == '' || env.FTP_USERNAME_RAW == ''
@@ -28,6 +33,20 @@ jobs:
       - name: Get the code
         uses: actions/checkout@v4
 
+      - name: Build config.php from secrets
+        if: env.DB_NAME != '' && env.DB_USER != '' && env.DB_PASSWORD != ''
+        run: |
+          mkdir -p "$RUNNER_TEMP/cfg"
+          php -r '
+            $c = ["driver" => "mysql", "host" => "localhost", "port" => 3306,
+                  "name" => trim(getenv("DB_NAME")), "user" => trim(getenv("DB_USER")), "pass" => getenv("DB_PASSWORD")];
+            $u = trim((string)getenv("ADMIN_USERNAME")); $p = (string)getenv("ADMIN_PASSWORD");
+            if ($u !== "" && $p !== "") { $c["admin_user"] = $u; $c["admin_hash"] = password_hash($p, PASSWORD_DEFAULT); }
+            file_put_contents(getenv("RUNNER_TEMP") . "/cfg/config.php",
+              "<?php\n// Written by GitHub Actions from repository secrets. Do not edit on the server.\nreturn " . var_export($c, true) . ";\n");
+          '
+          echo "config.php prepared"
+
       - name: Install lftp
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
 
@@ -37,8 +56,9 @@ jobs:
           server=$(printf '%s' "$FTP_SERVER_RAW" | sed -E 's#^[a-z]+://##; s#/.*$##; s/[[:space:]]//g')
           user=$(printf '%s' "$FTP_USERNAME_RAW" | tr -d '[:space:]')
           export LFTP_PASSWORD="$FTP_PASSWORD"
+          script="$RUNNER_TEMP/deploy.lftp"
 
-          lftp -u "$user" --env-password "$server" <<'EOF'
+          cat > "$script" <<'EOF'
           set ftp:ssl-allow yes
           set ssl:verify-certificate no
           set ftp:passive-mode on
@@ -46,17 +66,16 @@ jobs:
           set net:max-retries 8
           set net:reconnect-interval-base 5
           set net:reconnect-interval-max 30
-          mirror --reverse --verbose --parallel=2 \
-            --exclude '^\.git/' \
-            --exclude '^\.github/' \
-            --exclude '^\.gitignore$' \
-            --exclude '^README\.md$' \
-            --exclude '^config\.php$' \
-            --exclude '^uploads/.*\.jpg$' \
-            --exclude '^data/.*\.sqlite$' \
-            ./ public_html/
-          # never keep Git's internal folder on the web server
+          mirror --reverse --verbose --parallel=2 --exclude '^\.git/' --exclude '^\.github/' --exclude '^\.gitignore$' --exclude '^README\.md$' --exclude '^config\.php$' --exclude '^uploads/.*\.jpg$' --exclude '^data/.*\.sqlite$' ./ public_html/
           rm -r -f public_html/.git
-          bye
           EOF
+
+          # settings file built from secrets (only when the DB secrets exist)
+          if [ -f "$RUNNER_TEMP/cfg/config.php" ]; then
+            echo "put $RUNNER_TEMP/cfg/config.php -o public_html/config.php" >> "$script"
+          else
+            echo "::notice::DB secrets not set – leaving config.php on the server unchanged."
+          fi
+
+          lftp -u "$user" --env-password -e "source $script; bye" "$server"
           echo "✅ Website uploaded to Hostinger"
