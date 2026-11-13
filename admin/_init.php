@@ -37,14 +37,6 @@ function new_enquiry_count(): int {
     return (int)q("SELECT COUNT(*) FROM enquiries WHERE status = 'new'")->fetchColumn();
 }
 
-/** The website logo (same artwork as the public site). */
-function admin_logo(string $class = ''): string {
-    return '<span class="a-logo ' . h($class) . '">'
-         . '<span class="a-logo-art"><svg class="spark s1"><use href="#i-sparkle"/></svg><svg class="spark s2"><use href="#i-sparkle"/></svg>'
-         . '<svg class="spark s3"><use href="#i-sparkle"/></svg><svg class="muffin"><use href="#i-muffin"/></svg></span>'
-         . '<span class="a-logo-word">Bliss Bites</span><span class="a-logo-by">by Nutan Jain</span></span>';
-}
-
 function admin_header(string $title, string $active): void {
     $admin = current_admin();
     $newCount = new_enquiry_count();
@@ -62,12 +54,11 @@ function admin_header(string $title, string $active): void {
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title><?= h($title) ?> · Bliss Bites Admin</title>
 <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="admin.css?v=4"></head>
+<link rel="stylesheet" href="admin.css?v=3"></head>
 <body>
-<?php readfile(dirname(__DIR__) . '/inc/icons.svg'); ?>
 <header class="topbar">
   <button class="nav-toggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
-  <a class="brand" href="index.php" aria-label="Bliss Bites – dashboard"><?= admin_logo() ?></a>
+  <a class="brand" href="index.php">Bliss Bites</a>
   <div class="topbar-right">
     <a class="btn ghost sm" href="../" target="_blank">View website ↗</a>
   </div>

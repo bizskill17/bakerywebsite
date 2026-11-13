@@ -42,11 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?><!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title>Log in · Bliss Bites Admin</title>
-<link rel="icon" href="../images/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="admin.css?v=4"></head>
+<link rel="icon" href="../images/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="admin.css?v=3"></head>
 <body class="auth-page">
-<?php readfile(dirname(__DIR__) . '/inc/icons.svg'); ?>
   <form class="auth-card" method="post">
-    <div class="auth-logo"><?= admin_logo('big') ?><small>Admin panel</small></div>
+    <div class="auth-logo">Bliss Bites<small>Admin panel</small></div>
     <?php foreach (flash() as [$t, $m]): ?><div class="alert <?= h($t) ?>"><?= h($m) ?></div><?php endforeach; ?>
     <?php if ($error): ?><div class="alert err"><?= h($error) ?></div><?php endif; ?>
     <?= csrf_field() ?>
