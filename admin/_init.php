@@ -25,6 +25,14 @@ function require_login(): array {
 /** Shows the image path from inside /admin (paths are stored relative to the site root). */
 function img(string $rel): string { return h('../' . ltrim($rel, '/')); }
 
+/** "Pankaj Jain" -> "PJ", "nutan" -> "NU" */
+function initials(string $name): string {
+    $parts = preg_split('/[\s._-]+/', trim($name), -1, PREG_SPLIT_NO_EMPTY);
+    if (!$parts) return '?';
+    $ini = count($parts) > 1 ? mb_substr($parts[0], 0, 1) . mb_substr(end($parts), 0, 1) : mb_substr($parts[0], 0, 2);
+    return mb_strtoupper($ini);
+}
+
 function new_enquiry_count(): int {
     return (int)q("SELECT COUNT(*) FROM enquiries WHERE status = 'new'")->fetchColumn();
 }
@@ -46,14 +54,13 @@ function admin_header(string $title, string $active): void {
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title><?= h($title) ?> · Bliss Bites Admin</title>
 <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="admin.css?v=2"></head>
+<link rel="stylesheet" href="admin.css?v=3"></head>
 <body>
 <header class="topbar">
   <button class="nav-toggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
   <a class="brand" href="index.php">Bliss Bites <small>Admin</small></a>
   <div class="topbar-right">
     <a class="btn ghost sm" href="../" target="_blank">View website ↗</a>
-    <a class="btn ghost sm" href="logout.php">Log out</a>
   </div>
 </header>
 <div class="layout">
@@ -65,7 +72,16 @@ function admin_header(string $title, string $active): void {
         <?php if ($file === 'enquiries.php' && $newCount): ?><span class="pill"><?= $newCount ?></span><?php endif; ?>
       </a>
     <?php endforeach; ?>
-    <p class="who">Signed in as <b><?= h($admin['username'] ?? '') ?></b></p>
+    <div class="user-box">
+      <div class="user-row">
+        <span class="avatar" aria-hidden="true"><?= h(initials($admin['username'] ?? '')) ?></span>
+        <span class="user-meta"><b><?= h($admin['username'] ?? '') ?></b><small>Administrator</small></span>
+      </div>
+      <a class="btn ghost sm logout" href="logout.php">
+        <svg viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Log out
+      </a>
+    </div>
   </nav>
   <main class="content">
     <h1><?= h($title) ?></h1>

@@ -164,3 +164,18 @@ label.check input,label.radio input{width:auto}
 pre.code{background:#2b1a1f;color:#fde6ec;border-radius:10px;padding:10px 14px;font-size:.85rem;white-space:pre-wrap;word-break:break-all;margin:6px 0 14px}
 .howto{padding-left:20px;display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
 .alert.warn a{color:#86561a;font-weight:600}
+
+/* signed-in user + log out at the bottom of the side menu */
+.user-box{margin-top:auto;border-top:1px solid var(--line);padding:14px 6px 4px;display:flex;flex-direction:column;gap:10px}
+.user-row{display:flex;align-items:center;gap:10px}
+.avatar{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;background:linear-gradient(135deg,#e8628f,var(--pink));color:#fff;font-weight:600;font-size:.95rem;letter-spacing:.5px;box-shadow:0 3px 8px rgba(196,24,92,.25)}
+.user-meta{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.user-meta b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-meta small{color:var(--muted);font-size:.78rem}
+.btn.logout{width:100%;justify-content:center}
+.btn.logout svg{width:17px;height:17px}
+.btn.logout:hover{background:#fdecef;color:var(--err);border-color:#f6c9d2}
+@media (min-width:861px){
+  .layout{align-items:start}
+  .sidenav{position:sticky;top:53px;height:calc(100vh - 53px);overflow-y:auto}
+}
