@@ -45,7 +45,6 @@ admin_header('Instagram Gallery', 'gallery.php');
   <?= csrf_field() ?><input type="hidden" name="action" value="upload">
   <div>
     <h2>Add photos</h2>
-    <p class="muted">You can pick several photos at once. Computers show the first 5 photos; phones show the first 3. Square photos look best.</p>
   </div>
   <label class="btn ghost">Choose photos<input type="file" name="photos[]" accept="image/*" multiple hidden onchange="this.closest('form').querySelector('.chosen').textContent = this.files.length + ' photo(s) chosen'"></label>
   <span class="chosen muted"></span>
