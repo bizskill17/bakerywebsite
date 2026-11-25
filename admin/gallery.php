@@ -46,7 +46,7 @@ admin_header('Instagram Gallery', 'gallery.php');
   <div>
     <h2>Add photos</h2>
   </div>
-  <label class="btn ghost">Choose photos<input type="file" name="photos[]" accept="image/*" multiple hidden onchange="this.closest('form').querySelector('.chosen').textContent = this.files.length + ' photo(s) chosen'"></label>
+  <label class="btn ghost" style="margin-bottom:0">Choose photos<input type="file" name="photos[]" accept="image/*" multiple hidden onchange="this.closest('form').querySelector('.chosen').textContent = this.files.length + ' photo(s) chosen'"></label>
   <span class="chosen muted"></span>
   <button class="btn" type="submit">Upload</button>
 </form>
