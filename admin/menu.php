@@ -89,7 +89,7 @@ if ($showForm):
 <?php else:
     $rows = q('SELECT * FROM menu_items ORDER BY sort_order, id')->fetchAll();
 ?>
-  <div class="toolbar"><p class="muted">These appear in “Our Menu” on your website, in this order. On phones the first 3 show until “View Full Menu” is tapped.</p>
+  <div class="toolbar">
     <a class="btn" href="?new=1">+ Add menu item</a></div>
   <div class="item-list">
   <?php foreach ($rows as $i => $m): ?>
