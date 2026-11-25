@@ -51,7 +51,6 @@ admin_header('Baking Stories', 'stories.php');
 <?php if (setting('instagram_sync') === '1' && setting('instagram_token') !== ''): ?>
   <div class="alert warn">Instagram sync is ON, so your website shows your latest Instagram reels here instead. These photos are used only if sync is off or finds none. <a href="instagram.php">Instagram Sync →</a></div>
 <?php endif; ?>
-<p class="muted intro">Each story is a cover photo that opens your Instagram reel (or YouTube video) when tapped. Copy the reel's link from Instagram (⋯ → Copy link) and paste it here. Leave the link empty to open your Instagram profile.</p>
 
 <form class="panel form" method="post" enctype="multipart/form-data">
   <?= csrf_field() ?><input type="hidden" name="action" value="add">
@@ -60,7 +59,6 @@ admin_header('Baking Stories', 'stories.php');
     <div class="photo-pick">
       <img id="newprev" alt="" hidden>
       <label class="btn ghost">Choose cover photo<input type="file" name="image" accept="image/*" data-preview="newprev" hidden></label>
-      <small class="muted">Portrait (tall) photos look best.</small>
     </div>
     <div>
       <label>Reel / video link<input name="link" placeholder="https://www.instagram.com/reel/…"></label>
