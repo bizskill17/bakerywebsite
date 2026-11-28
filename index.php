@@ -93,6 +93,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
 @media(max-width:480px){.product-dialog{padding:14px}.product-dialog-photo{max-height:50vh}.product-dialog-footer .btn{font-size:.9rem}}
 @media(max-width:820px){.site-header .header-inner{justify-content:flex-start;gap:12px}.site-header .header-inner>.menu-toggle{order:0;flex:none;margin-right:auto}.site-header .header-inner>.header-actions{order:1;flex:none;margin:0;gap:14px}.site-header .header-inner>.logo{order:2;flex:none;margin-left:4px}.site-header .header-inner>.logo .brand-original{max-width:70px;max-height:60px;display:block}.site-header .header-inner>.logo .logo-by{max-width:90px;font-size:.72rem;line-height:1.2}}
 .cart-symbol{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none}.cart-count{position:absolute;top:-10px;right:-11px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:#fff;color:#c2185b;font-size:11px;font-weight:700;line-height:1;box-sizing:border-box}.cart-count[hidden]{display:none!important}.btn-order .cart-symbol:has(.cart-count:not([hidden])){margin-right:8px}.mobile-cart .cart-count{background:#c2185b;color:#fff}.mobile-cart{display:none!important}@media(max-width:820px){.site-header .header-actions .mobile-cart{display:inline-flex!important}.site-header .header-inner>.header-actions{gap:12px}}
+.minimal-footer{background:#fcf2f5;border-top:1px solid #edc8d5;text-align:center;padding:22px 16px 24px;font-family:inherit}.minimal-footer-brand{margin:0 0 5px;color:#a90e4c;font-size:15px;font-weight:600;line-height:1.5}.minimal-footer-detail{margin:0;color:#846570;font-size:12px;line-height:1.5}
 </style>
 </head>
 <body id="top">
@@ -270,6 +271,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
     </div>
   </section>
 </main>
+<footer class="minimal-footer"><p class="minimal-footer-brand">Bliss Bites by Nutan Jain</p><p class="minimal-footer-detail">Home Bakery in Guwahati · 2026</p></footer>
 <dialog class="product-dialog" id="product-photo-dialog" aria-labelledby="product-dialog-name">
   <div class="product-dialog-header"><h2 id="product-dialog-name"></h2><button type="button" class="product-dialog-close" aria-label="Close product photo" autofocus>×</button></div>
   <img class="product-dialog-photo" id="product-dialog-image" alt="">
