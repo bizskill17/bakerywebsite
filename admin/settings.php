@@ -22,9 +22,6 @@ $textFields = [
 ];
 $imageFields = [
     'brand_logo' => ['Original brand logo', 'Upload a transparent PNG logo to preserve its transparent background'],
-    'authentic_hero' => ['Homepage product photo', 'Upload an actual product photograph'],
-    'about_image'        => ['About photo (computer)', 'Photo of you baking works well'],
-    'about_image_mobile' => ['About photo (phone)', 'Landscape photo of your bakes'],
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -80,7 +77,7 @@ admin_header('Website Content', 'settings.php');
   <?php endforeach; ?>
 
   <section class="panel">
-    <h2>Photos</h2>
+    <h2>Logo</h2>
     <div class="photo-grid">
     <?php foreach ($imageFields as $key => [$label, $hint]): ?>
       <div class="photo-card">
