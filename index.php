@@ -255,7 +255,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
             <div class="product-picker-row"><div class="product-combo"><input type="text" id="product-search" placeholder="Search or choose a product..." role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="product-results" autocomplete="off"><div id="product-results" role="listbox" hidden></div><select id="product-picker" hidden aria-hidden="true" tabindex="-1"><option value="">Choose a product</option>
             <?php foreach($groups as $category=>$items): ?><optgroup label="<?= h($category) ?>"><?php foreach($items as $m): if(!$m['available'] || $m['amount']===null) continue; ?><option value="<?= (int)$m['id'] ?>" data-price="<?= h($m['amount']) ?>"><?= h($m['name']) ?> — <?= h(catalogue_price($m)) ?></option><?php endforeach; ?></optgroup><?php endforeach; ?></select></div><button type="button" class="btn btn-primary" id="add-product">Add</button></div>
             <div id="selected-products"></div>
-            <div class="order-total">Estimated total: ₹<span id="order-total">0</span></div>
+            <div class="order-total">Total: ₹<span id="order-total">0</span></div>
             <script type="application/json" id="previous-products"><?= json_encode($old['products']??[],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?></script></div>
             <label>Your name*<input name="name" required maxlength="120" value="<?= $o('name') ?>" autocomplete="name"></label>
             <label>Phone / WhatsApp*<input name="phone" required maxlength="20" inputmode="tel" value="<?= $o('phone') ?>" autocomplete="tel"></label>
