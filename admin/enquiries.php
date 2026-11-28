@@ -67,6 +67,7 @@ admin_header('Enquiries', 'enquiries.php');
     <a href="?f=all" class="<?= $filter === 'all' ? 'on' : '' ?>">All (<?= array_sum($counts) ?>)</a>
   </div>
 </div>
+<p class="enquiry-count" style="margin:0 0 10px;text-align:left" id="enquiry-count" aria-live="polite"></p>
 <div class="enquiry-table-wrap">
 <table class="enquiry-table">
 <thead><tr><th>Customer</th><th>Items</th><th>Qty</th><th>Total</th><th>Needed by</th><th>Status</th><th>Remarks</th><th>Action</th></tr></thead>
@@ -102,7 +103,7 @@ admin_header('Enquiries', 'enquiries.php');
 </tr>
 <?php endforeach; ?>
 </tbody></table></div>
-<p class="enquiry-count" id="enquiry-count" aria-live="polite"></p>
+
 <p class="muted" id="enquiry-empty" hidden>No matching enquiries.</p>
 <?php foreach($rows as $e): ?>
 <dialog class="enquiry-detail" id="enquiry-detail-<?= (int)$e['id'] ?>">
