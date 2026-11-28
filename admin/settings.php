@@ -21,7 +21,8 @@ $textFields = [
     ],
 ];
 $imageFields = [
-    'hero_image'         => ['Top banner photo', 'Wide (landscape) photo'],
+    'brand_logo' => ['Original brand logo', 'Upload your original logo file'],
+    'authentic_hero' => ['Homepage product photo', 'Upload an actual product photograph'],
     'about_image'        => ['About photo (computer)', 'Photo of you baking works well'],
     'about_image_mobile' => ['About photo (phone)', 'Landscape photo of your bakes'],
 ];
