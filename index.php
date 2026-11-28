@@ -49,7 +49,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bliss Bites by Nutan Jain | Homemade Brownies &amp; Cakes in <?= h($deliveryArea) ?></title>
+  <title>Bliss Bites by Nutan Jain</title>
   <meta name="description" content="Bliss Bites by Nutan Jain – a home-based bakery in <?= h($deliveryArea) ?>. Homemade brownies, brownie cakes, dry cakes and more, baked with love.">
   <meta name="theme-color" content="#c2185b">
   <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
