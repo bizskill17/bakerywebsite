@@ -6,7 +6,7 @@ date_default_timezone_set('Asia/Kolkata');
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 MB
 const IMAGE_MAX_SIDE   = 1600;             // px – larger photos are resized
-const SCHEMA_VERSION   = 2;
+const SCHEMA_VERSION   = 3;
 
 /* ---------- session ---------- */
 if (PHP_SAPI !== 'cli' && session_status() !== PHP_SESSION_ACTIVE) {
@@ -72,6 +72,7 @@ function ensure_setup(PDO $pdo, array $c): void {
     if ($ver < SCHEMA_VERSION) {
         require_once __DIR__ . '/schema.php';
         create_schema($pdo, $c['driver'] ?? 'mysql');
+        migrate_catalogue($pdo, $c['driver'] ?? 'mysql');
         $pdo->prepare('DELETE FROM settings WHERE k = ?')->execute(['schema_version']);
         $pdo->prepare('INSERT INTO settings (k, v) VALUES (?, ?)')->execute(['schema_version', (string)SCHEMA_VERSION]);
     }
@@ -227,4 +228,53 @@ function delete_image(?string $rel): void {
     if ($rel && str_starts_with($rel, 'uploads/') && !str_contains($rel, '..') && is_file(ROOT . '/' . $rel)) {
         @unlink(ROOT . '/' . $rel);
     }
+}
+
+/** Additive, repeatable catalogue migration; retain old category cards as inactive records. */
+function migrate_catalogue(PDO $pdo, string $driver): void {
+    $columns = $driver === 'mysql' ? array_column($pdo->query('SHOW COLUMNS FROM menu_items')->fetchAll(), 'Field') : array_column($pdo->query('PRAGMA table_info(menu_items)')->fetchAll(), 'name');
+    foreach (['category'=>"VARCHAR(100) NOT NULL DEFAULT 'Other'", 'unit'=>"VARCHAR(30) NOT NULL DEFAULT 'piece'", 'active'=>'INT NOT NULL DEFAULT 1', 'amount'=>'DECIMAL(10,2) NULL'] as $key=>$type) {
+        if (!in_array($key,$columns,true)) $pdo->exec("ALTER TABLE menu_items ADD COLUMN $key $type");
+    }
+    $pdo->beginTransaction();
+    try {
+        $pdo->exec("UPDATE menu_items SET active=0 WHERE name IN ('Brownies','Brownie Cakes','Dry Cakes','Marble & More') AND (price='' OR price IS NULL)");
+        $find=$pdo->prepare('SELECT id FROM menu_items WHERE name=?');
+        $add=$pdo->prepare('INSERT INTO menu_items (name,category,price,amount,unit,description,image,available,active,sort_order) VALUES (?,?,?,?,?,?,?,?,?,?)');
+        $edit=$pdo->prepare('UPDATE menu_items SET category=?,price=?,amount=?,unit=? WHERE id=? AND amount IS NULL');
+        foreach ([
+        ['Brownies','Nutella Brownie',90,'piece'],
+        ['Brownies','Lotus Biscoff Brownie',90,'piece'],
+        ['Brownies','Walnut Brownie',80,'piece'],
+        ['Brownies','Choco Chip Brownie',80,'piece'],
+        ['Brownie Cake','Chocolate Chip Brownie Cake',650,'cake'],
+        ['Classic Dry Cakes','Cake Without Milkmaid',500,'cake'],
+        ['Classic Dry Cakes','Classic Dry Fruits Cake',500,'cake'],
+        ['Classic Dry Cakes','Atta Dry Fruits Cake',500,'cake'],
+        ['Classic Dry Cakes','Chocolate Chip Cake',500,'cake'],
+        ['Classic Dry Cakes','Marble Cake',550,'cake'],
+        ['Classic Dry Cakes','Chocolate Cake',550,'cake'],
+        ['Alternative Ingredient Cakes','Atta Choco Chip Cake',500,'cake'],
+        ['Alternative Ingredient Cakes','Oats Cake',650,'cake'],
+        ['Alternative Ingredient Cakes','Wheat & Jaggery Cake',650,'cake'],
+        ['Alternative Ingredient Cakes','Ragi Cake',650,'cake'],
+        ['Speciality Cakes','Orange Almond Cake',600,'cake'],
+        ['Speciality Cakes','Mawa Cake',700,'cake'],
+        ['Speciality Cakes','Coffee Chiffon Cake',700,'cake'],
+        ['Speciality Cakes','Almonds & Dates Cake',700,'cake'],
+        ['Muffins','Vanilla Muffin',30,'piece'],
+        ['Muffins','Chocolate Muffin',40,'piece'],
+        ] as $i=>[$category,$name,$amount,$unit]) {
+            $find->execute([$name]); $id=$find->fetchColumn();
+            if ($id) $edit->execute([$category,(string)$amount,$amount,$unit,$id]);
+            else $add->execute([$name,$category,(string)$amount,$amount,$unit,'','',1,1,$i+10]);
+        }
+        $pdo->commit();
+    } catch (Throwable $e) { if ($pdo->inTransaction()) $pdo->rollBack(); throw $e; }
+}
+function catalogue_categories(): array {
+    return ['Brownies','Brownie Cake','Classic Dry Cakes','Alternative Ingredient Cakes','Speciality Cakes','Muffins','Other'];
+}
+function catalogue_price(array $item): string {
+    return $item['amount'] === null ? (string)$item['price'] : '₹'.rtrim(rtrim(number_format((float)$item['amount'],2,'.',''),'0'),'.').' / '.$item['unit'];
 }
