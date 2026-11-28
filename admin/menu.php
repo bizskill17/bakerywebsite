@@ -10,7 +10,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = (int)($_POST['id'] ?? 0);
     $action = $_POST['action'] ?? '';
 
-    if ($action === 'save') {
+    if ($action === 'import_photos') {
+        try {
+            if (!class_exists('ZipArchive')) throw new RuntimeException('ZIP support is not enabled on hosting.');
+            $file=$_FILES['photo_zip']??[];
+            if (($file['error']??1)!==UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name']) || $file['size']>10*1024*1024) throw new RuntimeException('Choose a ZIP file up to 10 MB.');
+            $map=['atta-dry-fruits-cake'=>'Atta Dry Fruits Cake','cake-without-milkmaid'=>'Cake Without Milkmaid','choco-chip-brownie'=>'Choco Chip Brownie','chocolate-cake'=>'Chocolate Cake','chocolate-chip-brownie-cake'=>'Chocolate Chip Brownie Cake','chocolate-chip-cake'=>'Chocolate Chip Cake','chocolate-muffin'=>'Chocolate Muffin','classic-dry-fruits-cake'=>'Classic Dry Fruits Cake','lotus-biscoff-brownie'=>'Lotus Biscoff Brownie','marble-cake'=>'Marble Cake','mawa-cake'=>'Mawa Cake','nutella-brownie'=>'Nutella Brownie','oats-cake'=>'Oats Cake','orange-almond-cake'=>'Orange Almond Cake','vanilla-muffin'=>'Vanilla Muffin','walnut-brownie'=>'Walnut Brownie','wheat-and-jaggery-cake'=>'Wheat & Jaggery Cake'];
+            $z=new ZipArchive(); if ($z->open($file['tmp_name'])!==true) throw new RuntimeException('Cannot open ZIP.');
+            $count=0;$logo=false;$seen=[];
+            try {
+                for ($i=0;$i<$z->numFiles;$i++) {
+                    $stat=$z->statIndex($i); $base=basename($stat['name']); $key=pathinfo($base,PATHINFO_FILENAME);
+                    if (!isset($map[$key]) && $key!=='original-logo') continue;
+                    if (isset($seen[$key]) || strtolower(pathinfo($base,PATHINFO_EXTENSION))!=='jpg' || $stat['size']>5*1024*1024) continue;
+                    $bytes=$z->getFromIndex($i,5*1024*1024); if ($bytes===false) continue;
+                    $info=@getimagesizefromstring($bytes); if (!$info || $info[2]!==IMAGETYPE_JPEG || $info[0]*$info[1]>30000000) continue;
+                    if ($key!=='original-logo') { $row=q('SELECT id FROM menu_items WHERE name=? AND active=1',[$map[$key]])->fetch(); if (!$row) continue; }
+                    $dir=ROOT.'/uploads'; if (!is_dir($dir) && !mkdir($dir,0755,true)) throw new RuntimeException('Cannot create uploads folder.');
+                    $rel='uploads/catalogue-'.$key.'-'.bin2hex(random_bytes(6)).'.jpg';
+                    if (file_put_contents(ROOT.'/'.$rel,$bytes)!==strlen($bytes)) throw new RuntimeException('Cannot write image.');
+                    if ($key==='original-logo') {save_setting('brand_logo',$rel);$logo=true;} else {q('UPDATE menu_items SET image=? WHERE id=?',[$rel,$row['id']]);$count++;}
+                    $seen[$key]=true;
+                }
+            } finally {$z->close();}
+            flash('Imported '.$count.' product photographs'.($logo?' and original logo':'').'.');
+            redirect('menu.php');
+        } catch (Throwable $e) { $errors[]=$e->getMessage(); }
+    } elseif ($action === 'save') {
         $name  = trim((string)($_POST['name'] ?? ''));
         $price = trim((string)($_POST['price'] ?? ''));
         $category = trim((string)($_POST['category'] ?? ''));
@@ -60,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $editId = (int)($_GET['edit'] ?? $_POST['id'] ?? 0);
-$showForm = isset($_GET['new']) || $editId || $errors;
+$showForm = isset($_GET['new']) || $editId || ($errors && ($_POST['action']??'')!=='import_photos');
 $item = $editId ? q('SELECT * FROM menu_items WHERE id = ?', [$editId])->fetch() : null;
 if ($errors) $item = array_merge($item ?: ['image' => ''], array_intersect_key($_POST, array_flip(['name', 'price', 'description','category','unit'])), ['available' => isset($_POST['available']) ? 1 : 0, 'active'=>isset($_POST['active'])?1:0, 'amount'=>$_POST['price']??'']);
 
@@ -98,6 +124,8 @@ if ($showForm):
 <?php else:
     $rows = q('SELECT * FROM menu_items ORDER BY active DESC, sort_order, id')->fetchAll();
 ?>
+  <?php foreach ($errors as $e): ?><div class="alert err"><?= h($e) ?></div><?php endforeach; ?>
+  <form class="panel form" method="post" enctype="multipart/form-data"><?= csrf_field() ?><input type="hidden" name="action" value="import_photos"><label>Import Bliss Bites product photographs and original logo (ZIP)<input type="file" name="photo_zip" accept=".zip" required></label><button class="btn" type="submit">Import photographs</button></form>
   <div class="toolbar">
     <a class="btn" href="?new=1">+ Add menu item</a></div>
   <div class="item-list">
