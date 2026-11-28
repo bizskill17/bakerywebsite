@@ -20,9 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($added) flash("$added photo(s) added to the gallery.");
             elseif (!upload_list('photos')) flash('Please choose at least one photo.', 'err');
             break;
-        case 'save':
-            if (q('SELECT id FROM gallery WHERE id = ?', [$id])->fetch()) flash('Photo saved.');
-            break;
         case 'delete':
             $row = q('SELECT * FROM gallery WHERE id = ?', [$id])->fetch();
             if ($row) { delete_image($row['image']); q('DELETE FROM gallery WHERE id = ?', [$id]); flash('Photo removed.'); }
@@ -53,8 +50,7 @@ admin_header('Gallery', 'gallery.php');
   <div class="photo-card">
     <img src="<?= img($g['image']) ?>" alt="">
     <div class="item-actions" style="display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:nowrap;margin-top:8px">
-      <?= action_button('save', (int)$g['id'], 'Save') ?>
-      <?= action_button('delete', (int)$g['id'], 'Delete', 'ghost sm danger', 'Remove this photo from the gallery?') ?>
+      <form method="post" class="inline" data-confirm="Remove this photo from the gallery?" style="margin:0"><?= csrf_field() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= (int)$g['id'] ?>"><button class="btn ghost sm danger" type="submit" title="Delete photo" aria-label="Delete photo" style="width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7M14 10v7"/></svg></button></form>
     </div>
   </div>
 <?php endforeach; ?>
