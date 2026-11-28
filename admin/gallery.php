@@ -36,11 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $rows = q('SELECT * FROM gallery ORDER BY sort_order, id')->fetchAll();
-admin_header('Instagram Gallery', 'gallery.php');
+admin_header('Gallery', 'gallery.php');
 ?>
-<?php if (setting('instagram_sync') === '1' && setting('instagram_token') !== ''): ?>
-  <div class="alert warn">Instagram sync is ON, so your website shows your latest Instagram photos here instead. These photos are used only if sync is off or finds none. <a href="instagram.php">Instagram Sync →</a></div>
-<?php endif; ?>
 <form class="panel upload-box" method="post" enctype="multipart/form-data">
   <?= csrf_field() ?><input type="hidden" name="action" value="upload">
   <div>
@@ -53,9 +50,8 @@ admin_header('Instagram Gallery', 'gallery.php');
 
 <div class="photo-grid">
 <?php foreach ($rows as $i => $g): ?>
-  <div class="photo-card <?= $i >= 5 ? 'hidden-on-site' : '' ?>">
+  <div class="photo-card">
     <img src="<?= img($g['image']) ?>" alt="">
-    <?php if ($i >= 5): ?><span class="tag">Not shown (only first 5 appear)</span><?php endif; ?>
     <form method="post" class="cap">
       <?= csrf_field() ?><input type="hidden" name="action" value="caption"><input type="hidden" name="id" value="<?= (int)$g['id'] ?>">
       <input name="caption" value="<?= h($g['caption']) ?>" placeholder="Short description (optional)" maxlength="160">
@@ -69,5 +65,5 @@ admin_header('Instagram Gallery', 'gallery.php');
   </div>
 <?php endforeach; ?>
 </div>
-<?php if (!$rows): ?><div class="panel"><p class="muted">No photos yet – the gallery section is hidden on the website until you add some.</p></div><?php endif; ?>
+<?php if (!$rows): ?><div class="panel"><p class="muted">No gallery photos yet. Add photos to display them in the homepage carousel.</p></div><?php endif; ?>
 <?php admin_footer();
