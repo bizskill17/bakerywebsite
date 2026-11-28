@@ -3,7 +3,7 @@ declare(strict_types=1);
 require __DIR__ . '/inc/bootstrap.php';
 require __DIR__ . '/inc/instagram.php';
 
-$menu    = q('SELECT * FROM menu_items WHERE active=1 ORDER BY sort_order, id')->fetchAll();
+$menu    = q('SELECT * FROM menu_items WHERE active=1 AND category<>'Other' ORDER BY sort_order, id')->fetchAll();
 $groups=[]; foreach ($menu as $m) $groups[$m['category']][]=$m;
 $brandLogo=setting('brand_logo');
 $gallery = q('SELECT * FROM gallery ORDER BY sort_order, id LIMIT 5')->fetchAll();
