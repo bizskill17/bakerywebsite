@@ -311,10 +311,10 @@ let index=0,step=0,base=0,timer=null,paused=motion.matches,hover=false,focused=f
 const clone=(card)=>{const c=card.cloneNode(true);c.setAttribute('aria-hidden','true');c.querySelector('img').alt='';return c};
 for(let repeat=0;repeat<3;repeat++)for(const c of original)track.append(clone(c));
 for(let repeat=0;repeat<2;repeat++)for(let j=n-1;j>=0;j--)track.prepend(clone(original[j]));
-function position(animate){track.style.transition=animate?'transform 750ms cubic-bezier(.25,.65,.3,1)':'none';track.style.transform='translate3d('+(base-index*step)+'px,0,0)';dots.forEach((d,i)=>d.setAttribute('aria-current',String(i===((index%n)+n)%n)))}
+function position(animate){track.style.transition=animate?'transform 500ms cubic-bezier(.25,.65,.3,1)':'none';track.style.transform='translate3d('+(base-index*step)+'px,0,0)';dots.forEach((d,i)=>d.setAttribute('aria-current',String(i===((index%n)+n)%n)))}
 function layout(){const c=original[0];step=c.offsetWidth+parseFloat(getComputedStyle(track).columnGap||0);base=(win.clientWidth-c.offsetWidth)/2-2*n*step;position(false)}
-function move(to){if(busy)return;index=to;busy=true;position(!motion.matches);setTimeout(()=>{index=((index%n)+n)%n;position(false);busy=false},motion.matches?0:780)}
-function schedule(){clearInterval(timer);if(!paused&&!hover&&!focused&&!document.hidden)timer=setInterval(()=>move(index+1),2800)}
+function move(to){if(busy)return;index=to;busy=true;position(!motion.matches);setTimeout(()=>{index=((index%n)+n)%n;position(false);busy=false},motion.matches?0:530)}
+function schedule(){clearInterval(timer);if(!paused&&!hover&&!focused&&!document.hidden)timer=setInterval(()=>move(index+1),1500)}
 function updatePause(){schedule()}
 root.querySelector('.showcase-prev').onclick=()=>move(index-1);root.querySelector('.showcase-next').onclick=()=>move(index+1);dots.forEach((d,i)=>d.onclick=()=>move(i));
 root.addEventListener('mouseenter',()=>{hover=true;schedule()});root.addEventListener('mouseleave',()=>{hover=false;schedule()});root.addEventListener('focusin',()=>{focused=true;schedule()});root.addEventListener('focusout',e=>{if(!root.contains(e.relatedTarget)){focused=false;schedule()}});
