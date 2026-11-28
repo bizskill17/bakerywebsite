@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $rows = q('SELECT * FROM gallery ORDER BY id DESC')->fetchAll();
 admin_header('Gallery', 'gallery.php');
 ?>
-<form id="gallery-upload" method="post" enctype="multipart/form-data" style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:16px">
+<form id="gallery-upload" method="post" enctype="multipart/form-data" style="display:flex;justify-content:flex-start;align-items:center;gap:10px;margin-bottom:16px">
   <?= csrf_field() ?><input type="hidden" name="action" value="upload">
   <input type="file" id="gallery-files" name="photos[]" accept="image/*" multiple hidden>
   <span id="gallery-upload-status" class="muted" role="status"></span>
