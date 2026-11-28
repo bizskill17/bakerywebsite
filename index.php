@@ -33,7 +33,19 @@ $old      = $_SESSION['enq_old'] ?? [];
 unset($_SESSION['enq_error'], $_SESSION['enq_old']);
 $o = fn(string $k) => h($old[$k] ?? '');
 
-$heroImg = setting('authentic_hero');
+$heroPhotos = [];
+foreach ($gallery as $g) {
+    $src = trim((string)($g['image'] ?? ''));
+    if ($src !== '') $heroPhotos[$src] = (string)($g['caption'] ?? '');
+}
+if (count($heroPhotos) < 4) {
+    foreach ($menu as $m) {
+        $src = trim((string)($m['image'] ?? ''));
+        if ($src !== '' && !str_starts_with($src,'images/menu-')) $heroPhotos[$src] = (string)$m['name'];
+    }
+}
+$heroPhotos = array_slice($heroPhotos, 0, 16, true);
+if (!$heroPhotos && ($heroImg = setting('authentic_hero'))) $heroPhotos[$heroImg] = 'Bliss Bites';
 $deliveryArea = setting('delivery_area', 'Guwahati');
 ?><!DOCTYPE html>
 <html lang="en">
@@ -46,8 +58,27 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
   <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css?v=4">
   <style>
-.hero-img{background-image:<?= $heroImg ? 'url("'.h($heroImg).'")' : 'none' ?>}
-.hero.no-photo .hero-copy{width:100%;align-items:center;text-align:center}
+/* Homepage photo showcase */
+.hero.hero-showcase{display:block;min-height:0;padding:24px 0 62px;background:radial-gradient(ellipse at 50% 65%,#fff5f7 0,#fbdce6 64%,#f8d0de 100%);overflow:hidden}
+.hero.hero-showcase .hero-inner{width:100%;position:relative;z-index:2}
+.hero.hero-showcase .hero-copy{width:100%;padding:12px 0 15px;align-items:center;text-align:center}
+.hero-showcase .showcase-tag{display:block;font-family:var(--serif);font-size:clamp(1.35rem,2.5vw,2rem);line-height:1.35;font-weight:500;color:var(--ink);margin:12px 0 24px}
+.hero-showcase .heart-rule{margin:8px 0 2px}
+.hero-showcase .heart-rule::before,.hero-showcase .heart-rule::after{width:clamp(45px,8vw,100px)}
+.showcase{position:relative;width:100%;z-index:2}
+.showcase-window{overflow:hidden;position:relative;padding:16px 0 22px;touch-action:pan-y;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.showcase-track{display:flex;align-items:center;gap:clamp(10px,1.6vw,23px);width:max-content;will-change:transform}
+.showcase-card{flex:none;width:clamp(170px,24vw,345px);height:clamp(176px,24vw,340px);border:3px solid rgba(255,255,255,.85);border-radius:28px;overflow:hidden;background:#f8d0de;box-shadow:0 12px 22px rgba(145,31,80,.12);transform:rotate(-3deg)}
+.showcase-card:nth-child(even){transform:rotate(3deg)}
+.showcase-card img{display:block;width:100%;height:100%;object-fit:cover}
+.showcase-arrow{position:absolute;top:46%;transform:translateY(-50%);z-index:3;width:48px;height:48px;border:0;border-radius:50%;background:rgba(255,255,255,.93);color:#c2185b;box-shadow:0 3px 14px #b72d6420;cursor:pointer;display:grid;place-items:center}
+.showcase-arrow svg{width:24px;height:24px}
+.showcase-prev{left:clamp(8px,2vw,30px)}.showcase-next{right:clamp(8px,2vw,30px)}
+.showcase-controls{display:flex;justify-content:center;align-items:center;gap:10px;margin:0 0 12px}
+.showcase-dot{width:10px;height:10px;background:#eaa3ba;border:0;border-radius:50%;padding:0;cursor:pointer}
+.showcase-dot[aria-current=true]{background:#c2185b}
+.showcase-pause{border:0;background:transparent;color:#a51650;font-size:12px;cursor:pointer;padding:4px 7px}
+@media(max-width:820px){.hero.hero-showcase{padding:10px 0 40px}.showcase-window{padding:12px 0 15px}.showcase-card{width:clamp(150px,45vw,260px);height:clamp(165px,47vw,270px);border-radius:20px}.showcase-arrow{width:36px;height:36px}.showcase-arrow svg{width:20px;height:20px}.hero.hero-showcase .hero-copy{padding:5px 0 15px}.hero-showcase .showcase-tag{font-size:1.25rem;margin:10px 0 16px}}
 .brand-original{width:auto;max-width:150px;max-height:90px;object-fit:contain}.hero .brand-original{max-width:290px;max-height:230px}
 .catalogue-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}.catalogue-tabs button{font:inherit;border:1px solid #ebc6d3;border-radius:30px;background:white;color:var(--berry);padding:8px 15px;cursor:pointer}.catalogue-tabs button[aria-pressed=true]{background:var(--pink);color:white}
 .catalogue-group{margin:24px 0}.catalogue-group h3{color:var(--berry);margin-bottom:12px}.catalogue-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.catalogue-item{display:flex;align-items:center;gap:14px;padding:14px;background:white;border:1px solid #f1d2dd;border-radius:14px}.catalogue-item img{width:90px;height:90px;object-fit:cover;border-radius:10px}.catalogue-item .detail{flex:1;min-width:0}.catalogue-item h4{margin:0 0 4px}.catalogue-item p{font-size:.85rem}.catalogue-price{color:var(--berry);font-weight:600}.catalogue-item button{font-size:.8rem;white-space:nowrap}.order-products{display:grid;gap:9px}.order-products label{display:grid;grid-template-columns:1fr 90px;align-items:center;gap:10px}.order-products input{width:90px}.order-group{padding:10px 0;border-bottom:1px solid #f1d2dd}.order-group h4{margin-bottom:8px;color:var(--berry)}.order-total{font-size:1.15rem;font-weight:600;color:var(--berry);text-align:right}
@@ -97,20 +128,29 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
 
 <main>
   <!-- ============ HERO ============ -->
-  <section class="hero<?= $heroImg ? '' : ' no-photo' ?>">
-    <div class="hero-img" role="img" aria-label="Freshly baked treats from Bliss Bites"></div>
-    <div class="container hero-inner">
-      <div class="hero-copy">
-        <div class="hero-logo desktop-only" aria-hidden="true"><span class="heart-rule"><svg><use href="#i-heart"/></svg></span></div>
-        <p class="hero-tag desktop-only"><?= h(setting('hero_tagline')) ?> <svg class="ic-heart"><use href="#i-heart"/></svg></p>
-
-        <h1 class="hero-title mobile-only"><?= h(setting('hero_title')) ?></h1>
-        <h1 class="visually-hidden desktop-only">Bliss Bites by Nutan Jain – <?= h(setting('hero_title')) ?></h1>
-        <p class="hero-sub mobile-only">Baked with Love <svg class="ic-heart"><use href="#i-heart"/></svg></p>
-
-        <a href="#menu" class="btn btn-primary">Explore Our Menu <svg><use href="#i-arrow"/></svg></a>
+  <section class="hero hero-showcase" aria-label="Welcome to Bliss Bites">
+    <?php if ($heroPhotos): ?>
+    <div class="showcase" id="home-showcase" aria-label="Freshly baked treats">
+      <div class="showcase-window"><div class="showcase-track">
+        <?php foreach ($heroPhotos as $src=>$caption): ?>
+          <div class="showcase-card"><img src="<?= h($src) ?>" alt="<?= h($shortCap($caption,'Bliss Bites treat')) ?>" decoding="async"></div>
+        <?php endforeach; ?>
+      </div></div>
+      <?php if (count($heroPhotos)>1): ?>
+      <button type="button" class="showcase-arrow showcase-prev" aria-label="Previous photo"><svg><use href="#i-chev-l"/></svg></button>
+      <button type="button" class="showcase-arrow showcase-next" aria-label="Next photo"><svg><use href="#i-chev-r"/></svg></button>
+      <div class="showcase-controls">
+        <?php foreach (array_keys($heroPhotos) as $i=>$src): ?><button type="button" class="showcase-dot" aria-label="Show photo <?= $i+1 ?>" aria-current="<?= $i===0?'true':'false' ?>"></button><?php endforeach; ?>
+        <button type="button" class="showcase-pause" aria-label="Pause photo movement">Pause</button>
       </div>
+      <?php endif; ?>
     </div>
+    <?php endif; ?>
+    <div class="container hero-inner"><div class="hero-copy">
+      <span class="heart-rule" aria-hidden="true"><svg><use href="#i-heart"/></svg></span>
+      <h1 class="showcase-tag"><?= h(setting('hero_tagline')) ?> <svg class="ic-heart" aria-hidden="true"><use href="#i-heart"/></svg></h1>
+      <a href="#menu" class="btn btn-primary">Explore Our Menu <svg><use href="#i-arrow"/></svg></a>
+    </div></div>
   </section>
 
   <section class="features features-top mobile-only" aria-label="Why Bliss Bites">
@@ -263,6 +303,26 @@ function render(){if(!box)return;box.replaceChildren();for(const [id,q] of selec
 function add(id){if(!products.has(id))return;selected.set(id,Math.min(999,(selected.get(id)||0)+1));render()}
 if(picker){try{for(const [id,q] of Object.entries(JSON.parse(document.getElementById('previous-products').textContent))){if(products.has(id)&&Number.isInteger(Number(q))&&Number(q)>0)selected.set(id,Math.min(999,Number(q)))}}catch(e){}render();document.getElementById('add-product').onclick=()=>{add(picker.value);picker.value=''};}
 document.querySelectorAll('[data-order]').forEach(b=>b.addEventListener('click',()=>{if(!picker){location.hash='contact';return}add(b.dataset.order);b.textContent='Added ✓';setTimeout(()=>b.textContent='+ Add',800)}));document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));document.querySelectorAll('[data-category]').forEach(g=>g.hidden=b.dataset.filter!=='all'&&g.dataset.category!==b.dataset.filter)}));})();
-</script></body>
+</script><script>
+(()=>{const root=document.getElementById('home-showcase');if(!root)return;
+const track=root.querySelector('.showcase-track'),win=root.querySelector('.showcase-window'),original=[...track.children],n=original.length;
+if(n<2){track.style.margin='auto';return}
+const dots=[...root.querySelectorAll('.showcase-dot')],pause=root.querySelector('.showcase-pause'),motion=matchMedia('(prefers-reduced-motion: reduce)');
+let index=0,step=0,base=0,timer=null,paused=motion.matches,hover=false,focused=false,busy=false,startX=null;
+const clone=(card)=>{const c=card.cloneNode(true);c.setAttribute('aria-hidden','true');c.querySelector('img').alt='';return c};
+for(let repeat=0;repeat<3;repeat++)for(const c of original)track.append(clone(c));
+for(let repeat=0;repeat<2;repeat++)for(let j=n-1;j>=0;j--)track.prepend(clone(original[j]));
+function position(animate){track.style.transition=animate?'transform 750ms cubic-bezier(.25,.65,.3,1)':'none';track.style.transform='translate3d('+(base-index*step)+'px,0,0)';dots.forEach((d,i)=>d.setAttribute('aria-current',String(i===((index%n)+n)%n)))}
+function layout(){const c=original[0];step=c.offsetWidth+parseFloat(getComputedStyle(track).columnGap||0);base=(win.clientWidth-c.offsetWidth)/2-2*n*step;position(false)}
+function move(to){if(busy)return;index=to;busy=true;position(!motion.matches);setTimeout(()=>{index=((index%n)+n)%n;position(false);busy=false},motion.matches?0:780)}
+function schedule(){clearInterval(timer);if(!paused&&!hover&&!focused&&!document.hidden)timer=setInterval(()=>move(index+1),2800)}
+function updatePause(){pause.textContent=paused?'Play':'Pause';pause.setAttribute('aria-label',paused?'Play photo movement':'Pause photo movement');schedule()}
+root.querySelector('.showcase-prev').onclick=()=>move(index-1);root.querySelector('.showcase-next').onclick=()=>move(index+1);dots.forEach((d,i)=>d.onclick=()=>move(i));pause.onclick=()=>{paused=!paused;updatePause()};
+root.addEventListener('mouseenter',()=>{hover=true;schedule()});root.addEventListener('mouseleave',()=>{hover=false;schedule()});root.addEventListener('focusin',()=>{focused=true;schedule()});root.addEventListener('focusout',e=>{if(!root.contains(e.relatedTarget)){focused=false;schedule()}});
+win.addEventListener('touchstart',e=>{startX=e.touches[0].clientX},{passive:true});win.addEventListener('touchend',e=>{if(startX===null)return;const delta=e.changedTouches[0].clientX-startX;startX=null;if(Math.abs(delta)>35)move(index+(delta<0?1:-1))},{passive:true});
+document.addEventListener('visibilitychange',schedule);motion.addEventListener?.('change',e=>{paused=e.matches;updatePause()});window.addEventListener('resize',layout);layout();updatePause();
+})();
+</script>
+</body>
 </html>
 <?php ig_sync_after_response();
