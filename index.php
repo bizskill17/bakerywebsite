@@ -77,7 +77,6 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
 .showcase-controls{display:flex;justify-content:center;align-items:center;gap:10px;margin:0 0 12px}
 .showcase-dot{width:10px;height:10px;background:#eaa3ba;border:0;border-radius:50%;padding:0;cursor:pointer}
 .showcase-dot[aria-current=true]{background:#c2185b}
-.showcase-pause{border:0;background:transparent;color:#a51650;font-size:12px;cursor:pointer;padding:4px 7px}
 @media(max-width:820px){.hero.hero-showcase{padding:10px 0 40px}.showcase-window{padding:12px 0 15px}.showcase-card{width:clamp(150px,45vw,260px);height:clamp(165px,47vw,270px);border-radius:20px}.showcase-arrow{width:36px;height:36px}.showcase-arrow svg{width:20px;height:20px}.hero.hero-showcase .hero-copy{padding:5px 0 15px}.hero-showcase .showcase-tag{font-size:1.25rem;margin:10px 0 16px}}
 .brand-original{width:auto;max-width:150px;max-height:90px;object-fit:contain}.hero .brand-original{max-width:290px;max-height:230px}
 .catalogue-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}.catalogue-tabs button{font:inherit;border:1px solid #ebc6d3;border-radius:30px;background:white;color:var(--berry);padding:8px 15px;cursor:pointer}.catalogue-tabs button[aria-pressed=true]{background:var(--pink);color:white}
@@ -141,7 +140,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
       <button type="button" class="showcase-arrow showcase-next" aria-label="Next photo"><svg><use href="#i-chev-r"/></svg></button>
       <div class="showcase-controls">
         <?php foreach (array_keys($heroPhotos) as $i=>$src): ?><button type="button" class="showcase-dot" aria-label="Show photo <?= $i+1 ?>" aria-current="<?= $i===0?'true':'false' ?>"></button><?php endforeach; ?>
-        <button type="button" class="showcase-pause" aria-label="Pause photo movement">Pause</button>
+
       </div>
       <?php endif; ?>
     </div>
@@ -307,7 +306,7 @@ document.querySelectorAll('[data-order]').forEach(b=>b.addEventListener('click',
 (()=>{const root=document.getElementById('home-showcase');if(!root)return;
 const track=root.querySelector('.showcase-track'),win=root.querySelector('.showcase-window'),original=[...track.children],n=original.length;
 if(n<2){track.style.margin='auto';return}
-const dots=[...root.querySelectorAll('.showcase-dot')],pause=root.querySelector('.showcase-pause'),motion=matchMedia('(prefers-reduced-motion: reduce)');
+const dots=[...root.querySelectorAll('.showcase-dot')],motion=matchMedia('(prefers-reduced-motion: reduce)');
 let index=0,step=0,base=0,timer=null,paused=motion.matches,hover=false,focused=false,busy=false,startX=null;
 const clone=(card)=>{const c=card.cloneNode(true);c.setAttribute('aria-hidden','true');c.querySelector('img').alt='';return c};
 for(let repeat=0;repeat<3;repeat++)for(const c of original)track.append(clone(c));
@@ -316,8 +315,8 @@ function position(animate){track.style.transition=animate?'transform 750ms cubic
 function layout(){const c=original[0];step=c.offsetWidth+parseFloat(getComputedStyle(track).columnGap||0);base=(win.clientWidth-c.offsetWidth)/2-2*n*step;position(false)}
 function move(to){if(busy)return;index=to;busy=true;position(!motion.matches);setTimeout(()=>{index=((index%n)+n)%n;position(false);busy=false},motion.matches?0:780)}
 function schedule(){clearInterval(timer);if(!paused&&!hover&&!focused&&!document.hidden)timer=setInterval(()=>move(index+1),2800)}
-function updatePause(){pause.textContent=paused?'Play':'Pause';pause.setAttribute('aria-label',paused?'Play photo movement':'Pause photo movement');schedule()}
-root.querySelector('.showcase-prev').onclick=()=>move(index-1);root.querySelector('.showcase-next').onclick=()=>move(index+1);dots.forEach((d,i)=>d.onclick=()=>move(i));pause.onclick=()=>{paused=!paused;updatePause()};
+function updatePause(){schedule()}
+root.querySelector('.showcase-prev').onclick=()=>move(index-1);root.querySelector('.showcase-next').onclick=()=>move(index+1);dots.forEach((d,i)=>d.onclick=()=>move(i));
 root.addEventListener('mouseenter',()=>{hover=true;schedule()});root.addEventListener('mouseleave',()=>{hover=false;schedule()});root.addEventListener('focusin',()=>{focused=true;schedule()});root.addEventListener('focusout',e=>{if(!root.contains(e.relatedTarget)){focused=false;schedule()}});
 win.addEventListener('touchstart',e=>{startX=e.touches[0].clientX},{passive:true});win.addEventListener('touchend',e=>{if(startX===null)return;const delta=e.changedTouches[0].clientX-startX;startX=null;if(Math.abs(delta)>35)move(index+(delta<0?1:-1))},{passive:true});
 document.addEventListener('visibilitychange',schedule);motion.addEventListener?.('change',e=>{paused=e.matches;updatePause()});window.addEventListener('resize',layout);layout();updatePause();
