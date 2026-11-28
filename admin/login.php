@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?><!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title>Log in · Bliss Bites Admin</title>
-<link rel="icon" href="../images/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="admin.css?v=6"></head>
+<link rel="icon" href="../images/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="admin.css?v=6"><style>.password-wrap{position:relative;display:block}.password-wrap input{width:100%;box-sizing:border-box;padding-right:48px}.password-toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:38px;height:34px;display:grid;place-items:center;background:transparent;border:0;color:#c2185b;cursor:pointer;border-radius:6px;padding:0}.password-toggle svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.password-toggle [hidden]{display:none!important}.password-toggle:focus-visible{outline:2px solid #c2185b}</style></head>
 <body class="auth-page">
   <form class="auth-card" method="post">
     <div class="auth-logo">Bliss Bites<small>Admin panel</small></div>
@@ -50,8 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($error): ?><div class="alert err"><?= h($error) ?></div><?php endif; ?>
     <?= csrf_field() ?>
     <label>Username<input name="username" value="<?= h($username) ?>" required autofocus autocomplete="username"></label>
-    <label>Password<input type="password" name="password" required autocomplete="current-password"></label>
+    <label for="admin-password">Password</label><div class="password-wrap"><input id="admin-password" type="password" name="password" required autocomplete="current-password"><button type="button" class="password-toggle" id="password-toggle" aria-label="Show password" aria-pressed="false" title="Show password"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/><path id="eye-slash" d="M3 3l18 18" hidden/></svg></button></div>
     <button class="btn block" type="submit">Log in</button>
     <p class="muted center"><a href="../">← Back to website</a></p>
   </form>
-</body></html>
+<script>const password=document.getElementById('admin-password'),toggle=document.getElementById('password-toggle');toggle.addEventListener('click',()=>{const visible=password.type==='password';password.type=visible?'text':'password';const label=visible?'Hide password':'Show password';toggle.setAttribute('aria-label',label);toggle.setAttribute('aria-pressed',String(visible));toggle.title=label;document.getElementById('eye-slash').toggleAttribute('hidden',!visible)});</script></body></html>
