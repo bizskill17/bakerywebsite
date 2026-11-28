@@ -56,10 +56,10 @@ admin_header('Enquiries', 'enquiries.php');
 .enquiry-tools .btn{margin-left:auto;white-space:nowrap}
 .enquiry-table-wrap{overflow-x:auto;background:#fff;border:1px solid #edcbd7;border-radius:12px}
 .enquiry-table{border-collapse:collapse;width:100%;min-width:950px;text-align:left;table-layout:auto}
-.enquiry-table th,.enquiry-table td{padding:12px 10px;border-bottom:1px solid #f1dce5;vertical-align:top;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.enquiry-table th,.enquiry-table td{padding:12px 10px;border:1px solid #edcbd7;vertical-align:middle;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
 .enquiry-table th{background:#fcebf1;color:#a90e4c;font-weight:600;white-space:nowrap}
-.enquiry-table tr:last-child td{border-bottom:0}
-.enquiry-table .customer{min-width:125px}.enquiry-table .phone{white-space:nowrap}.enquiry-table .items{min-width:135px;max-width:220px}.enquiry-table .summary{min-width:180px;max-width:300px}.enquiry-table .qty{text-align:center}.enquiry-table .received{display:block;color:#927480;font-size:11px;margin-top:4px}
+
+.enquiry-table .customer{min-width:145px}.enquiry-table .customer-phone{display:block;margin-top:3px;color:#b30950;white-space:nowrap}.enquiry-table .status{white-space:nowrap;display:inline-block;word-break:normal;overflow-wrap:normal}.enquiry-table .total-cell{white-space:nowrap;text-align:right;font-weight:600;color:#a90e4c}.enquiry-table .received{white-space:nowrap}.enquiry-table .phone{white-space:nowrap}.enquiry-table .items{min-width:135px;max-width:220px}.enquiry-table .summary{min-width:180px;max-width:300px}.enquiry-table .qty{text-align:center}.enquiry-table .received{display:block;color:#927480;font-size:11px;margin-top:4px}
 .enquiry-table .message-preview{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
 .enquiry-table .order-total-text{font-weight:600;color:#a90e4c;margin-bottom:3px}
 .enquiry-table .enquiry-actions{display:flex;gap:6px;align-items:center;white-space:nowrap}.enquiry-actions form{margin:0;display:inline-flex}
@@ -71,12 +71,7 @@ admin_header('Enquiries', 'enquiries.php');
 .enquiry-table [hidden],#enquiry-empty[hidden]{display:none!important}.enquiry-count{font-size:12px;color:#927480;margin-top:10px}
 </style>
 <div class="enquiry-tools">
-  <input type="search" id="enquiry-search" placeholder="Search enquiries (name, phone, item, message...)" aria-label="Search enquiries">
-  <select id="enquiry-status" aria-label="Filter by status">
-    <option value="all" <?= $filter==='all'?'selected':'' ?>>All Statuses</option>
-    <option value="open" <?= $filter==='open'?'selected':'' ?>>Open</option>
-    <?php foreach(STATUSES as $k=>$label): ?><option value="<?= h($k) ?>" <?= $filter===$k?'selected':'' ?>><?= h($label) ?></option><?php endforeach; ?>
-  </select>
+  <input type="search" id="enquiry-search" placeholder="Search enquiries..." aria-label="Search enquiries">
   <a class="btn ghost sm" href="?export=csv">↓ Download Excel/CSV</a>
 </div>
 <div class="toolbar">
@@ -90,7 +85,7 @@ admin_header('Enquiries', 'enquiries.php');
 </div>
 <div class="enquiry-table-wrap">
 <table class="enquiry-table">
-<thead><tr><th>Name</th><th>Phone</th><th>Items</th><th>Qty</th><th>Needed by</th><th>Status</th><th>Order Summary</th><th>Action</th></tr></thead>
+<thead><tr><th>Customer</th><th>Items</th><th>Qty</th><th>Total</th><th>Needed by</th><th>Status</th><th>Remarks</th><th>Action</th></tr></thead>
 <tbody>
 <?php foreach ($rows as $e):
     $digits=wa_digits($e['phone']);
@@ -108,13 +103,13 @@ admin_header('Enquiries', 'enquiries.php');
     $eid=(int)$e['id'];
 ?>
 <tr data-enquiry-row data-search="<?= h($e['name'].' '.$e['phone'].' '.$e['item'].' '.$e['quantity'].' '.$e['message'].' '.(STATUSES[$e['status']]??$e['status'])) ?>">
-  <td class="customer"><b><?= h($e['name']) ?></b><span class="received"><?= h(date('d/m/Y, g:i a',strtotime($e['created_at']))) ?></span></td>
-  <td class="phone"><a href="tel:<?= h($e['phone']) ?>"><?= h($e['phone']) ?></a></td>
+  <td class="customer"><b><?= h($e['name']) ?></b><a class="customer-phone" href="tel:<?= h($e['phone']) ?>"><?= h($e['phone']) ?></a><span class="received"><?= h(date('d/m/Y, g:i A',strtotime($e['created_at']))) ?></span></td>
   <td class="items"><?php if($items): foreach($items as $item): ?><div><?= h($item) ?></div><?php endforeach; else: ?><?= h($e['item']?:'—') ?><?php endif; ?></td>
   <td class="qty"><?= h($e['quantity']?:'—') ?></td>
+  <td class="total-cell"><?= h($orderTotal?:'—') ?></td>
   <td><?= $e['needed_by']?h(date('d/m/Y',strtotime($e['needed_by']))):'—' ?></td>
   <td><span class="status s-<?= h($e['status']) ?>"><?= h(STATUSES[$e['status']]??$e['status']) ?></span></td>
-  <td class="summary"><?php if($orderTotal): ?><div class="order-total-text">Total: <?= h($orderTotal) ?></div><?php endif; ?><div class="message-preview"><?= h($note?:($orderTotal?'':'—')) ?></div></td>
+  <td class="summary"><div class="message-preview"><?= h($note?:'—') ?></div></td>
   <td><div class="enquiry-actions">
     <?php if($digits): ?><a class="enquiry-action wa-link" href="https://wa.me/<?= h($digits) ?>?text=<?= h(rawurlencode($reply)) ?>" target="_blank" rel="noopener" title="Reply on WhatsApp" aria-label="Reply on WhatsApp"><svg viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.1A8 8 0 1 1 20 11.5Z"/><path d="M9 8c-2 2 3 7 5 6l1-1-2-1-1 1-3-3 1-1-1-2Z"/></svg></a><?php endif; ?>
     <button class="enquiry-action" type="button" data-open-detail="<?= $eid ?>" title="View details / change status" aria-label="View details and change status"><svg viewBox="0 0 24 24"><path d="m15 5 4 4M4 20l4-1 12-12-4-4L4 15z"/></svg></button>
@@ -139,6 +134,6 @@ admin_header('Enquiries', 'enquiries.php');
 </dialog>
 <?php endforeach; ?>
 <script>
-(()=>{const search=document.getElementById('enquiry-search'),status=document.getElementById('enquiry-status'),rows=[...document.querySelectorAll('[data-enquiry-row]')],count=document.getElementById('enquiry-count'),empty=document.getElementById('enquiry-empty');function filter(){const term=search.value.trim().toLowerCase();let n=0;rows.forEach(r=>{r.hidden=!r.dataset.search.toLowerCase().includes(term);if(!r.hidden)n++});count.textContent=n+' enquir'+(n===1?'y':'ies');empty.hidden=n!==0}search.addEventListener('input',filter);status.addEventListener('change',()=>location.href='?f='+encodeURIComponent(status.value));document.querySelectorAll('[data-open-detail]').forEach(b=>b.addEventListener('click',()=>document.getElementById('enquiry-detail-'+b.dataset.openDetail).showModal()));document.querySelectorAll('[data-close-detail]').forEach(b=>b.addEventListener('click',()=>b.closest('dialog').close()));filter()})();
+(()=>{const search=document.getElementById('enquiry-search'),rows=[...document.querySelectorAll('[data-enquiry-row]')],count=document.getElementById('enquiry-count'),empty=document.getElementById('enquiry-empty');function filter(){const term=search.value.trim().toLowerCase();let n=0;rows.forEach(r=>{r.hidden=!r.dataset.search.toLowerCase().includes(term);if(!r.hidden)n++});count.textContent=n+' enquir'+(n===1?'y':'ies');empty.hidden=n!==0}search.addEventListener('input',filter);document.querySelectorAll('[data-open-detail]').forEach(b=>b.addEventListener('click',()=>document.getElementById('enquiry-detail-'+b.dataset.openDetail).showModal()));document.querySelectorAll('[data-close-detail]').forEach(b=>b.addEventListener('click',()=>b.closest('dialog').close()));filter()})();
 </script>
 <?php admin_footer();
