@@ -134,6 +134,7 @@ if ($showForm):
     <select id="menu-category" aria-label="Filter by category"><option value="">All Categories</option><?php foreach($ordered as $c=>$items): ?><option value="<?= h($c) ?>"><?= h($c) ?></option><?php endforeach; ?></select>
     <a class="btn menu-add-icon" href="?new=1" title="Add menu item" aria-label="Add menu item">+ Add</a>
   </div>
+  <p class="menu-total" style="margin:0 0 10px;text-align:left" id="menu-total" aria-live="polite"></p>
   <div class="menu-table-wrap">
   <table class="menu-table">
     <thead><tr><th scope="col">Name</th><th scope="col">Photo</th><th scope="col">Category</th><th scope="col" class="price-col">Price</th><th scope="col">Unit</th><th scope="col">Action</th></tr></thead>
@@ -158,7 +159,7 @@ if ($showForm):
     <?php endforeach; ?>
   </table>
   </div>
-  <p class="menu-total" id="menu-total" aria-live="polite"></p>
+  
   <p class="muted" id="menu-empty" hidden>No matching menu items.</p>
   <script>
   (()=>{const search=document.getElementById('menu-search'),category=document.getElementById('menu-category'),groups=[...document.querySelectorAll('[data-menu-group]')],total=document.getElementById('menu-total'),empty=document.getElementById('menu-empty');
