@@ -5,22 +5,6 @@ require_login();
 
 const STATUSES = ['new' => 'New', 'contacted' => 'Contacted', 'confirmed' => 'Confirmed', 'delivered' => 'Delivered', 'cancelled' => 'Cancelled'];
 
-/* ---- CSV download ---- */
-if (($_GET['export'] ?? '') === 'csv') {
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="bliss-bites-enquiries-' . date('Y-m-d') . '.csv"');
-    $out = fopen('php://output', 'w');
-    fwrite($out, "\xEF\xBB\xBF"); // so Excel shows ₹ and Hindi correctly
-    fputcsv($out, ['Received', 'Name', 'Phone', 'Item', 'Quantity', 'Needed by', 'Message', 'Status']);
-    foreach (q('SELECT * FROM enquiries ORDER BY id DESC')->fetchAll() as $e) {
-        // prefix cells that start with formula characters so spreadsheets don't run them
-        $row = array_map(fn($v) => preg_match('/^[=+\-@]/', (string)$v) ? "'" . $v : $v,
-            [$e['created_at'], $e['name'], $e['phone'], $e['item'], $e['quantity'], $e['needed_by'], $e['message'], STATUSES[$e['status']] ?? $e['status']]);
-        fputcsv($out, $row);
-    }
-    exit;
-}
-
 /* ---- actions ---- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
@@ -72,7 +56,7 @@ admin_header('Enquiries', 'enquiries.php');
 </style>
 <div class="enquiry-tools">
   <input type="search" id="enquiry-search" placeholder="Search enquiries..." aria-label="Search enquiries">
-  <a class="btn ghost sm" href="?export=csv">↓ Download Excel/CSV</a>
+
 </div>
 <div class="toolbar">
   <div class="tabs">
