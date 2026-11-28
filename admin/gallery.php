@@ -45,6 +45,7 @@ admin_header('Gallery', 'gallery.php');
 (()=>{const form=document.getElementById('gallery-upload'),files=document.getElementById('gallery-files'),button=document.getElementById('gallery-add'),status=document.getElementById('gallery-upload-status');button.addEventListener('click',()=>files.click());files.addEventListener('change',()=>{if(!files.files.length)return;button.disabled=true;button.textContent='Uploading…';status.textContent='Uploading '+files.files.length+' photo(s)…';form.requestSubmit()})})();
 </script>
 
+<p class="muted" style="font-size:13px;margin:0 0 12px;font-weight:500">Total Photos: <?= count($rows) ?></p>
 <div class="photo-grid">
 <?php foreach ($rows as $i => $g): ?>
   <div class="photo-card">
@@ -55,6 +56,7 @@ admin_header('Gallery', 'gallery.php');
   </div>
 <?php endforeach; ?>
 </div>
+<?php if ($rows): ?><p class="muted" style="font-size:12px;margin-top:12px"><?= count($rows) ?> photo<?= count($rows)===1?'':'s' ?></p><?php endif; ?>
 <?php if (!$rows): ?><div class="panel"><p class="muted">No gallery photos yet. Add photos to display them in the homepage carousel.</p></div><?php endif; ?>
 <script>
 document.querySelectorAll('.alert:not(.err):not(.warn)').forEach(el=>{setTimeout(()=>{el.style.transition='opacity 250ms ease';el.style.opacity='0';setTimeout(()=>el.remove(),250)},3000)});
