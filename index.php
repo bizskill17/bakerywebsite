@@ -3,7 +3,9 @@ declare(strict_types=1);
 require __DIR__ . '/inc/bootstrap.php';
 require __DIR__ . '/inc/instagram.php';
 
-$menu    = q('SELECT * FROM menu_items ORDER BY sort_order, id')->fetchAll();
+$menu    = q('SELECT * FROM menu_items WHERE active=1 ORDER BY sort_order, id')->fetchAll();
+$groups=[]; foreach ($menu as $m) $groups[$m['category']][]=$m;
+$brandLogo=setting('brand_logo');
 $gallery = q('SELECT * FROM gallery ORDER BY sort_order, id LIMIT 5')->fetchAll();
 $stories = q('SELECT * FROM stories ORDER BY sort_order, id')->fetchAll();
 
@@ -31,7 +33,7 @@ $old      = $_SESSION['enq_old'] ?? [];
 unset($_SESSION['enq_error'], $_SESSION['enq_old']);
 $o = fn(string $k) => h($old[$k] ?? '');
 
-$heroImg = setting('hero_image', 'images/hero.jpg');
+$heroImg = setting('authentic_hero');
 $deliveryArea = setting('delivery_area', 'Guwahati');
 ?><!DOCTYPE html>
 <html lang="en">
@@ -43,7 +45,14 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
   <meta name="theme-color" content="#c2185b">
   <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css?v=4">
-  <style>.hero-img{background-image:url("<?= h($heroImg) ?>")}</style>
+  <style>
+.hero-img{background-image:<?= $heroImg ? 'url("'.h($heroImg).'")' : 'none' ?>}
+.hero.no-photo .hero-copy{width:100%;align-items:center;text-align:center}
+.brand-original{width:auto;max-width:150px;max-height:90px;object-fit:contain}.hero .brand-original{max-width:290px;max-height:230px}
+.catalogue-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}.catalogue-tabs button{font:inherit;border:1px solid #ebc6d3;border-radius:30px;background:white;color:var(--berry);padding:8px 15px;cursor:pointer}.catalogue-tabs button[aria-pressed=true]{background:var(--pink);color:white}
+.catalogue-group{margin:24px 0}.catalogue-group h3{color:var(--berry);margin-bottom:12px}.catalogue-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.catalogue-item{display:flex;align-items:center;gap:14px;padding:14px;background:white;border:1px solid #f1d2dd;border-radius:14px}.catalogue-item img{width:90px;height:90px;object-fit:cover;border-radius:10px}.catalogue-item .detail{flex:1;min-width:0}.catalogue-item h4{margin:0 0 4px}.catalogue-item p{font-size:.85rem}.catalogue-price{color:var(--berry);font-weight:600}.catalogue-item button{font-size:.8rem;white-space:nowrap}.order-products{display:grid;gap:9px}.order-products label{display:grid;grid-template-columns:1fr 90px;align-items:center;gap:10px}.order-products input{width:90px}.order-group{padding:10px 0;border-bottom:1px solid #f1d2dd}.order-group h4{margin-bottom:8px;color:var(--berry)}.order-total{font-size:1.15rem;font-weight:600;color:var(--berry);text-align:right}
+@media(max-width:650px){.catalogue-list{grid-template-columns:1fr}.catalogue-item img{width:72px;height:72px}.brand-original{max-width:100px;max-height:65px}}
+</style>
 </head>
 <body id="top">
 
@@ -57,14 +66,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
     </button>
 
     <a href="#top" class="logo" aria-label="Bliss Bites by Nutan Jain – home">
-      <span class="logo-art">
-        <svg class="spark s1"><use href="#i-sparkle"/></svg>
-        <svg class="spark s2"><use href="#i-sparkle"/></svg>
-        <svg class="spark s3"><use href="#i-sparkle"/></svg>
-        <svg class="muffin"><use href="#i-muffin"/></svg>
-      </span>
-      <span class="logo-word">Bliss <span class="b2">Bites</span></span>
-      <span class="logo-by">by Nutan Jain</span>
+      <?php if ($brandLogo): ?><img class="brand-original" src="<?= h($brandLogo) ?>" alt="Bliss Bites by Nutan Jain"><?php else: ?><span class="logo-by">Bliss Bites by Nutan Jain</span><?php endif; ?>
     </a>
 
     <nav class="main-nav" aria-label="Main">
@@ -95,18 +97,12 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
 
 <main>
   <!-- ============ HERO ============ -->
-  <section class="hero">
+  <section class="hero<?= $heroImg ? '' : ' no-photo' ?>">
     <div class="hero-img" role="img" aria-label="Freshly baked treats from Bliss Bites"></div>
     <div class="container hero-inner">
       <div class="hero-copy">
         <div class="hero-logo desktop-only" aria-hidden="true">
-          <span class="logo-art big">
-            <svg class="spark s1"><use href="#i-sparkle"/></svg>
-            <svg class="spark s2"><use href="#i-sparkle"/></svg>
-            <svg class="muffin"><use href="#i-muffin"/></svg>
-          </span>
-          <span class="logo-word big">Bliss Bites</span>
-          <span class="logo-by big">by Nutan Jain</span>
+          <?php if ($brandLogo): ?><img class="brand-original" src="<?= h($brandLogo) ?>" alt=""><?php else: ?><span class="logo-word big">Bliss Bites</span><span class="logo-by big">by Nutan Jain</span><?php endif; ?>
           <span class="heart-rule"><svg><use href="#i-heart"/></svg></span>
         </div>
         <p class="hero-tag desktop-only"><?= h(setting('hero_tagline')) ?> <svg class="ic-heart"><use href="#i-heart"/></svg></p>
@@ -130,28 +126,14 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
   <section class="section menu" id="menu">
     <div class="container">
       <h2 class="section-title"><svg class="desktop-only"><use href="#i-cake"/></svg>Our Menu</h2>
-      <div class="menu-grid">
-        <?php foreach ($menu as $i => $m): ?>
-        <article class="menu-card<?= $i >= 3 ? ' extra' : '' ?><?= $m['available'] ? '' : ' sold-out' ?>">
-          <div class="menu-img">
-            <img src="<?= h($m['image'] ?: 'images/favicon.svg') ?>" alt="<?= h($m['name']) ?>" loading="lazy">
-            <?php if (!$m['available']): ?><span class="badge">Sold out</span><?php endif; ?>
-          </div>
-          <h3><?= h($m['name']) ?></h3>
-          <?php if ($m['price'] !== '' || trim((string)$m['description']) !== ''): ?>
-          <div class="menu-meta">
-            <?php if ($m['price'] !== ''): ?><span class="price"><?= h($m['price']) ?></span><?php endif; ?>
-            <?php if (trim((string)$m['description']) !== ''): ?><p><?= nl2br(h($m['description'])) ?></p><?php endif; ?>
-          </div>
-          <?php endif; ?>
-        </article>
-        <?php endforeach; ?>
-      </div>
-      <?php if (count($menu) > 3): ?>
-      <div class="center mobile-only">
-        <button class="btn btn-outline js-full-menu">View Full Menu <svg><use href="#i-arrow"/></svg></button>
-      </div>
-      <?php endif; ?>
+      <div class="catalogue-tabs" aria-label="Product categories"><button type="button" data-filter="all" aria-pressed="true">All</button><?php foreach($groups as $category=>$items): ?><button type="button" data-filter="<?= h($category) ?>" aria-pressed="false"><?= h($category) ?></button><?php endforeach; ?></div>
+      <?php foreach($groups as $category=>$items): ?>
+      <div class="catalogue-group" data-category="<?= h($category) ?>"><h3><?= h($category) ?></h3><div class="catalogue-list">
+      <?php foreach($items as $m): ?><article class="catalogue-item">
+      <?php if ($m['image'] && !str_starts_with($m['image'],'images/menu-')): ?><a href="<?= h($m['image']) ?>" target="_blank" rel="noopener"><img src="<?= h($m['image']) ?>" alt="<?= h($m['name']) ?>" loading="lazy"></a><?php endif; ?>
+      <div class="detail"><h4><?= h($m['name']) ?></h4><?php if($m['description']): ?><p><?= h($m['description']) ?></p><?php endif; ?><span class="catalogue-price"><?= h(catalogue_price($m)) ?></span></div>
+      <?php if($m['available'] && $m['amount']!==null): ?><button type="button" class="btn btn-outline" data-order="<?= (int)$m['id'] ?>">+ Add</button><?php else: ?><small><?= $m['available']?'Enquire':'Sold out' ?></small><?php endif; ?>
+      </article><?php endforeach; ?></div></div><?php endforeach; ?>
     </div>
   </section>
 
@@ -244,17 +226,12 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
         <?php else: ?>
           <?php if ($enqError): ?><p class="enq-error"><?= h($enqError) ?></p><?php endif; ?>
           <form class="enquiry-form" method="post" action="enquiry.php">
+            <div class="full order-products"><h3>What Would You Like?</h3>
+            <?php foreach($groups as $category=>$items): ?><div class="order-group"><h4><?= h($category) ?></h4>
+            <?php foreach($items as $m): if(!$m['available'] || $m['amount']===null) continue; ?><label><span><?= h($m['name']) ?> — <?= h(catalogue_price($m)) ?></span><input type="number" min="0" max="999" step="1" name="products[<?= (int)$m['id'] ?>]" data-price="<?= h($m['amount']) ?>" id="qty-<?= (int)$m['id'] ?>" value="<?= (int)($old['products'][$m['id']]??0) ?>" aria-label="Quantity for <?= h($m['name']) ?>"></label><?php endforeach; ?></div><?php endforeach; ?>
+            <div class="order-total">Estimated total: ₹<span id="order-total">0</span></div></div>
             <label>Your name*<input name="name" required maxlength="120" value="<?= $o('name') ?>" autocomplete="name"></label>
             <label>Phone / WhatsApp*<input name="phone" required maxlength="20" inputmode="tel" value="<?= $o('phone') ?>" autocomplete="tel"></label>
-            <label>What would you like?
-              <select name="item">
-                <?php foreach ($menu as $m): if (!$m['available']) continue; ?>
-                <option<?= ($old['item'] ?? '') === $m['name'] ? ' selected' : '' ?>><?= h($m['name']) ?></option>
-                <?php endforeach; ?>
-                <option<?= ($old['item'] ?? '') === 'Something else' ? ' selected' : '' ?>>Something else</option>
-              </select>
-            </label>
-            <label>Quantity<input name="quantity" maxlength="60" placeholder="e.g. 1 box of 6" value="<?= $o('quantity') ?>"></label>
             <label>Needed by<input type="date" name="needed_by" min="<?= date('Y-m-d') ?>" value="<?= $o('needed_by') ?>"></label>
             <label class="full">Message<textarea name="message" rows="3" maxlength="1000" placeholder="Occasion, flavour, delivery address, anything else…"><?= $o('message') ?></textarea></label>
             <label class="hp" aria-hidden="true">Leave this empty<input name="website" tabindex="-1" autocomplete="off"></label>
@@ -280,6 +257,8 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
 </footer>
 
 <script src="js/main.js?v=3"></script>
-</body>
+<script>
+(()=>{const inputs=[...document.querySelectorAll('[data-price]')],total=document.getElementById('order-total');function calc(){if(total)total.textContent=inputs.reduce((s,i)=>s+Number(i.dataset.price)*Math.max(0,Number(i.value)||0),0).toLocaleString('en-IN',{maximumFractionDigits:2})}inputs.forEach(i=>i.addEventListener('input',calc));calc();document.querySelectorAll('[data-order]').forEach(b=>b.addEventListener('click',()=>{const i=document.getElementById('qty-'+b.dataset.order);if(!i){location.hash='contact';return}i.value=Math.min(999,(Number(i.value)||0)+1);calc();b.textContent='Added ✓';setTimeout(()=>b.textContent='+ Add',800)}));document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));document.querySelectorAll('[data-category]').forEach(g=>g.hidden=b.dataset.filter!=='all'&&g.dataset.category!==b.dataset.filter)}));})();
+</script></body>
 </html>
 <?php ig_sync_after_response();
