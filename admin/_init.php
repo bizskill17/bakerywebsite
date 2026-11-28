@@ -54,7 +54,7 @@ function admin_header(string $title, string $active): void {
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title><?= h($title) ?> · Bliss Bites Admin</title>
 <link rel="icon" href="<?= img(setting('brand_logo') ?: 'images/favicon.svg') ?>">
-<link rel="stylesheet" href="admin.css?v=6"></head>
+<link rel="stylesheet" href="admin.css?v=7"></head>
 <body>
 <?php readfile(dirname(__DIR__) . '/inc/icons.svg'); ?>
 <header class="topbar">
