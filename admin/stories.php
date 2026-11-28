@@ -70,6 +70,7 @@ admin_header('Baking Stories', 'stories.php');
 @media(max-width:480px){.story-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.story-tile{padding:7px}.story-dialog{padding:18px}}
 </style>
 <div class="story-toolbar"><button type="button" class="btn" data-story-open="story-add">+ Add Story</button></div>
+<p class="story-count" style="margin:0 0 10px;text-align:left"><?= count($rows) ?> Baking <?= count($rows)===1?'Story':'Stories' ?></p>
 <div class="story-grid">
 <?php foreach($rows as $s): $sid=(int)$s['id']; $link=clean_link((string)$s['link']); ?>
   <article class="story-tile">
@@ -87,7 +88,7 @@ admin_header('Baking Stories', 'stories.php');
 <?php endforeach; ?>
 </div>
 <?php if(!$rows): ?><div class="panel"><p class="muted">No stories yet. Add a story to get started.</p></div><?php endif; ?>
-<p class="story-count"><?= count($rows) ?> Baking <?= count($rows)===1?'Story':'Stories' ?></p>
+
 <?php foreach(array_merge([null],$rows) as $story): $editing=$story!==null; $sid=$editing?(int)$story['id']:0; $dialogId=$editing?'story-edit-'.$sid:'story-add'; ?>
 <dialog class="story-dialog" id="<?= h($dialogId) ?>" aria-labelledby="<?= h($dialogId) ?>-title">
   <h2 id="<?= h($dialogId) ?>-title"><?= $editing?'Edit Story':'Add Story' ?></h2>
