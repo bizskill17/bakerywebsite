@@ -20,9 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($added) flash("$added photo(s) added to the gallery.");
             elseif (!upload_list('photos')) flash('Please choose at least one photo.', 'err');
             break;
-        case 'caption':
-            q('UPDATE gallery SET caption = ? WHERE id = ?', [mb_substr(trim((string)$_POST['caption']), 0, 160), $id]);
-            flash('Description saved.');
+        case 'save':
+            if (q('SELECT id FROM gallery WHERE id = ?', [$id])->fetch()) flash('Photo saved.');
             break;
         case 'delete':
             $row = q('SELECT * FROM gallery WHERE id = ?', [$id])->fetch();
@@ -52,12 +51,8 @@ admin_header('Gallery', 'gallery.php');
 <?php foreach ($rows as $i => $g): ?>
   <div class="photo-card">
     <img src="<?= img($g['image']) ?>" alt="">
-    <form method="post" class="cap">
-      <?= csrf_field() ?><input type="hidden" name="action" value="caption"><input type="hidden" name="id" value="<?= (int)$g['id'] ?>">
-      <input name="caption" value="<?= h($g['caption']) ?>" placeholder="Short description (optional)" maxlength="160">
-      <button class="btn ghost sm" type="submit">Save</button>
-    </form>
-    <div class="item-actions">
+    <div class="item-actions" style="display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:nowrap;margin-top:8px">
+      <?= action_button('save', (int)$g['id'], 'Save') ?>
       <?= action_button('delete', (int)$g['id'], 'Delete', 'ghost sm danger', 'Remove this photo from the gallery?') ?>
     </div>
   </div>
