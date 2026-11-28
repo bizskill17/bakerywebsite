@@ -37,15 +37,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $rows = q('SELECT * FROM gallery ORDER BY sort_order, id')->fetchAll();
 admin_header('Gallery', 'gallery.php');
 ?>
-<form class="panel upload-box" method="post" enctype="multipart/form-data">
+<form id="gallery-upload" method="post" enctype="multipart/form-data" style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:16px">
   <?= csrf_field() ?><input type="hidden" name="action" value="upload">
-  <div>
-    <h2>Add photos</h2>
-  </div>
-  <label class="btn ghost" style="margin-bottom:0">Choose photos<input type="file" name="photos[]" accept="image/*" multiple hidden onchange="this.closest('form').querySelector('.chosen').textContent = this.files.length + ' photo(s) chosen'"></label>
-  <span class="chosen muted"></span>
-  <button class="btn" type="submit">Upload</button>
+  <input type="file" id="gallery-files" name="photos[]" accept="image/*" multiple hidden>
+  <span id="gallery-upload-status" class="muted" role="status"></span>
+  <button class="btn" type="button" id="gallery-add" style="display:inline-flex;align-items:center;gap:7px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5"/></svg>Add Photos</button>
+  <noscript><p>Enable JavaScript to upload photographs.</p></noscript>
 </form>
+<script>
+(()=>{const form=document.getElementById('gallery-upload'),files=document.getElementById('gallery-files'),button=document.getElementById('gallery-add'),status=document.getElementById('gallery-upload-status');button.addEventListener('click',()=>files.click());files.addEventListener('change',()=>{if(!files.files.length)return;button.disabled=true;button.textContent='Uploading…';status.textContent='Uploading '+files.files.length+' photo(s)…';form.requestSubmit()})})();
+</script>
 
 <div class="photo-grid">
 <?php foreach ($rows as $i => $g): ?>
