@@ -307,19 +307,20 @@ document.querySelectorAll('[data-order]').forEach(b=>b.addEventListener('click',
 const track=root.querySelector('.showcase-track'),win=root.querySelector('.showcase-window'),original=[...track.children],n=original.length;
 if(n<2){track.style.margin='auto';return}
 const dots=[...root.querySelectorAll('.showcase-dot')],motion=matchMedia('(prefers-reduced-motion: reduce)');
-let index=0,step=0,base=0,timer=null,paused=motion.matches,hover=false,focused=false,busy=false,startX=null;
+let index=0,step=0,base=0,paused=motion.matches,hover=false,focused=false,startX=null,last=0,frame=0,tween=null;
 const clone=(card)=>{const c=card.cloneNode(true);c.setAttribute('aria-hidden','true');c.querySelector('img').alt='';return c};
 for(let repeat=0;repeat<3;repeat++)for(const c of original)track.append(clone(c));
 for(let repeat=0;repeat<2;repeat++)for(let j=n-1;j>=0;j--)track.prepend(clone(original[j]));
-function position(animate){track.style.transition=animate?'transform 500ms cubic-bezier(.25,.65,.3,1)':'none';track.style.transform='translate3d('+(base-index*step)+'px,0,0)';dots.forEach((d,i)=>d.setAttribute('aria-current',String(i===((index%n)+n)%n)))}
-function layout(){const c=original[0];step=c.offsetWidth+parseFloat(getComputedStyle(track).columnGap||0);base=(win.clientWidth-c.offsetWidth)/2-2*n*step;position(false)}
-function move(to){if(busy)return;index=to;busy=true;position(!motion.matches);setTimeout(()=>{index=((index%n)+n)%n;position(false);busy=false},motion.matches?0:530)}
-function schedule(){clearInterval(timer);if(!paused&&!hover&&!focused&&!document.hidden)timer=setInterval(()=>move(index+1),1500)}
-function updatePause(){schedule()}
-root.querySelector('.showcase-prev').onclick=()=>move(index-1);root.querySelector('.showcase-next').onclick=()=>move(index+1);dots.forEach((d,i)=>d.onclick=()=>move(i));
-root.addEventListener('mouseenter',()=>{hover=true;schedule()});root.addEventListener('mouseleave',()=>{hover=false;schedule()});root.addEventListener('focusin',()=>{focused=true;schedule()});root.addEventListener('focusout',e=>{if(!root.contains(e.relatedTarget)){focused=false;schedule()}});
+const wrap=x=>((x%n)+n)%n;
+function position(){index=wrap(index);track.style.transform='translate3d('+(base-index*step)+'px,0,0)';const active=wrap(Math.round(index));dots.forEach((d,i)=>d.setAttribute('aria-current',String(i===active)))}
+function layout(){const c=original[0];step=c.offsetWidth+parseFloat(getComputedStyle(track).columnGap||0);base=(win.clientWidth-c.offsetWidth)/2-2*n*step;position()}
+function move(to){let delta=to-index;if(motion.matches){index=to;position();return}tween={from:index,delta,start:performance.now()};}
+function tick(now){const dt=last?Math.min(now-last,50):0;last=now;if(tween){const p=Math.min(1,(now-tween.start)/420);index=tween.from+tween.delta*(1-Math.pow(1-p,3));position();if(p===1)tween=null;}else if(!paused&&!hover&&!focused&&!document.hidden){index+=dt/1500;position()}frame=requestAnimationFrame(tick)}
+root.querySelector('.showcase-prev').onclick=()=>move(Math.ceil(index)-1);root.querySelector('.showcase-next').onclick=()=>move(Math.floor(index)+1);dots.forEach((d,i)=>d.onclick=()=>{let delta=wrap(i-index);if(delta>n/2)delta-=n;move(index+delta)});
+root.addEventListener('mouseenter',()=>{hover=true});root.addEventListener('mouseleave',()=>{hover=false});root.addEventListener('focusin',()=>{focused=true});root.addEventListener('focusout',e=>{if(!root.contains(e.relatedTarget))focused=false});
 win.addEventListener('touchstart',e=>{startX=e.touches[0].clientX},{passive:true});win.addEventListener('touchend',e=>{if(startX===null)return;const delta=e.changedTouches[0].clientX-startX;startX=null;if(Math.abs(delta)>35)move(index+(delta<0?1:-1))},{passive:true});
-document.addEventListener('visibilitychange',schedule);motion.addEventListener?.('change',e=>{paused=e.matches;updatePause()});window.addEventListener('resize',layout);layout();updatePause();
+motion.addEventListener?.('change',e=>{paused=e.matches;tween=null});window.addEventListener('resize',layout);layout();frame=requestAnimationFrame(tick);
+
 })();
 </script>
 </body>
