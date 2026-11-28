@@ -126,13 +126,13 @@ if ($showForm):
 .menu-table [hidden],#menu-empty[hidden]{display:none!important}
 .menu-total{font-size:12px;color:#927280;margin-top:10px}
 @media(max-width:650px){.menu-tools .menu-search{flex-basis:100%}.menu-table th,.menu-table td{padding:6px 9px}}
-.menu-tools .menu-add-icon{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;flex:none;font-size:26px;line-height:1;border-radius:50%}
+.menu-tools .menu-add-icon{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;width:auto;height:40px;padding:0 20px;flex:none;font-size:14px;line-height:1;border-radius:24px}
 </style>
   <?php foreach ($errors as $e): ?><div class="alert err"><?= h($e) ?></div><?php endforeach; ?>
   <div class="menu-tools">
     <input class="menu-search" id="menu-search" type="search" placeholder="Search menu items..." aria-label="Search menu items">
     <select id="menu-category" aria-label="Filter by category"><option value="">All Categories</option><?php foreach($ordered as $c=>$items): ?><option value="<?= h($c) ?>"><?= h($c) ?></option><?php endforeach; ?></select>
-    <a class="btn menu-add-icon" href="?new=1" title="Add menu item" aria-label="Add menu item">+</a>
+    <a class="btn menu-add-icon" href="?new=1" title="Add menu item" aria-label="Add menu item">+ Add</a>
   </div>
   <div class="menu-table-wrap">
   <table class="menu-table">
