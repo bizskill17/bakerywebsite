@@ -90,7 +90,7 @@ admin_header('Enquiries', 'enquiries.php');
 </div>
 <div class="enquiry-table-wrap">
 <table class="enquiry-table">
-<thead><tr><th>Name</th><th>Phone</th><th>Items</th><th>Qty</th><th>Needed by</th><th>Status</th><th>Message / Order Summary</th><th>Action</th></tr></thead>
+<thead><tr><th>Name</th><th>Phone</th><th>Items</th><th>Qty</th><th>Needed by</th><th>Status</th><th>Order Summary</th><th>Action</th></tr></thead>
 <tbody>
 <?php foreach ($rows as $e):
     $digits=wa_digits($e['phone']);
