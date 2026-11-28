@@ -21,7 +21,7 @@ $textFields = [
     ],
 ];
 $imageFields = [
-    'brand_logo' => ['Original brand logo', 'Upload your original logo file'],
+    'brand_logo' => ['Original brand logo', 'Upload a transparent PNG logo to preserve its transparent background'],
     'authentic_hero' => ['Homepage product photo', 'Upload an actual product photograph'],
     'about_image'        => ['About photo (computer)', 'Photo of you baking works well'],
     'about_image_mobile' => ['About photo (phone)', 'Landscape photo of your bakes'],
@@ -40,7 +40,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($imageFields as $key => $_) {
         if (!has_upload($key)) continue;
         try {
-            $new = save_image($_FILES[$key]);
+            if ($key === 'brand_logo' && (new finfo(FILEINFO_MIME_TYPE))->file($_FILES[$key]['tmp_name']) === 'image/png') {
+                $file = $_FILES[$key];
+                if ($file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name']) || $file['size'] > MAX_UPLOAD_BYTES) throw new RuntimeException('Invalid logo upload.');
+                $info = @getimagesize($file['tmp_name']);
+                if (!$info || $info[2] !== IMAGETYPE_PNG || $info[0]*$info[1] > 30000000) throw new RuntimeException('Invalid PNG logo.');
+                if (!is_dir(ROOT.'/uploads') && !mkdir(ROOT.'/uploads',0755,true)) throw new RuntimeException('Could not create uploads folder.');
+                $new = 'uploads/logo-'.bin2hex(random_bytes(8)).'.png';
+                if (!move_uploaded_file($file['tmp_name'],ROOT.'/'.$new)) throw new RuntimeException('Could not save logo.');
+            } else {
+                $new = save_image($_FILES[$key]);
+            }
             delete_image(setting($key));
             save_setting($key, $new);
         } catch (RuntimeException $e) { flash($imageFields[$key][0] . ': ' . $e->getMessage(), 'err'); $ok = false; }
