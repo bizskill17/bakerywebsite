@@ -94,6 +94,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
 .product-dialog-footer{margin-top:16px;flex-wrap:wrap}.product-dialog-price{color:#a90e4c;font-weight:600;font-size:1.15rem}
 .product-dialog [hidden]{display:none!important}
 @media(max-width:480px){.product-dialog{padding:14px}.product-dialog-photo{max-height:50vh}.product-dialog-footer .btn{font-size:.9rem}}
+@media(max-width:820px){.site-header .header-inner{justify-content:flex-start;gap:12px}.site-header .header-inner>.menu-toggle{order:0;flex:none;margin-right:auto}.site-header .header-inner>.header-actions{order:1;flex:none;margin:0;gap:14px}.site-header .header-inner>.logo{order:2;flex:none;margin-left:4px}.site-header .header-inner>.logo .brand-original{max-width:70px;max-height:60px;display:block}.site-header .header-inner>.logo .logo-by{max-width:90px;font-size:.72rem;line-height:1.2}}
 </style>
 </head>
 <body id="top">
