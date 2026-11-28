@@ -101,10 +101,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
     <div class="hero-img" role="img" aria-label="Freshly baked treats from Bliss Bites"></div>
     <div class="container hero-inner">
       <div class="hero-copy">
-        <div class="hero-logo desktop-only" aria-hidden="true">
-          <?php if ($brandLogo): ?><img class="brand-original" src="<?= h($brandLogo) ?>" alt=""><?php else: ?><span class="logo-word big">Bliss Bites</span><span class="logo-by big">by Nutan Jain</span><?php endif; ?>
-          <span class="heart-rule"><svg><use href="#i-heart"/></svg></span>
-        </div>
+        <div class="hero-logo desktop-only" aria-hidden="true"><span class="heart-rule"><svg><use href="#i-heart"/></svg></span></div>
         <p class="hero-tag desktop-only"><?= h(setting('hero_tagline')) ?> <svg class="ic-heart"><use href="#i-heart"/></svg></p>
 
         <h1 class="hero-title mobile-only"><?= h(setting('hero_title')) ?></h1>
