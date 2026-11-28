@@ -52,7 +52,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
   <title>Bliss Bites by Nutan Jain</title>
   <meta name="description" content="Bliss Bites by Nutan Jain – a home-based bakery in <?= h($deliveryArea) ?>. Homemade brownies, brownie cakes, dry cakes and more, baked with love.">
   <meta name="theme-color" content="#c2185b">
-  <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="<?= h($brandLogo ?: 'images/favicon.svg') ?>">
   <link rel="stylesheet" href="css/style.css?v=4">
   <style>
 /* Homepage photo showcase */
