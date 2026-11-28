@@ -48,13 +48,4 @@ admin_header('Dashboard', 'index.php');
   <?php endif; ?>
 </section>
 
-<section class="panel">
-  <h2>Quick actions</h2>
-  <div class="quick">
-    <a class="btn" href="menu.php?new=1">+ Add menu item</a>
-    <a class="btn" href="gallery.php">+ Add gallery photos</a>
-    <a class="btn" href="stories.php">+ Add baking story</a>
-    <a class="btn ghost" href="settings.php">Edit website text &amp; links</a>
-  </div>
-</section>
 <?php admin_footer();
