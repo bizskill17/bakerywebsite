@@ -122,30 +122,76 @@ if ($showForm):
     </div>
   </form>
 <?php else:
-    $rows = q('SELECT * FROM menu_items ORDER BY active DESC, sort_order, id')->fetchAll();
+    $rows = q('SELECT * FROM menu_items ORDER BY sort_order, id')->fetchAll();
+    $groups=[];
+    foreach ($rows as $m) $groups[$m['category']][]=$m;
+    $ordered=[];
+    foreach(catalogue_categories() as $c) if(isset($groups[$c]) && $c!=='Other') $ordered[$c]=$groups[$c];
+    foreach($groups as $c=>$items) if(!isset($ordered[$c]) && $c!=='Other') $ordered[$c]=$items;
+    if(isset($groups['Other'])) $ordered['Other']=$groups['Other'];
 ?>
+<style>
+.menu-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+.menu-tools .menu-search{flex:1;min-width:160px}
+.menu-tools input,.menu-tools select{font:inherit;padding:9px 12px;border:1px solid #eccbd7;border-radius:9px;background:#fff;max-width:100%}
+.menu-table-wrap{overflow-x:auto;border:1px solid #eccbd7;border-radius:12px;background:#fff}
+.menu-table{border-collapse:collapse;width:100%;min-width:700px;text-align:left}
+.menu-table th,.menu-table td{padding:7px 12px;border-bottom:1px solid #f4e2e8;vertical-align:middle;font-size:13px}
+.menu-table thead th{background:#fff;color:#a90e4c;font-weight:600;white-space:nowrap}
+.menu-table .category-heading th{background:#fbe4ed;color:#a90e4c;font-size:14px;padding:9px 12px}
+.menu-table .product-thumb{width:48px;height:48px;object-fit:cover;display:block;border-radius:7px}
+.menu-table .price-col{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.menu-table .unit-col{text-transform:capitalize}
+.menu-table .menu-actions{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.menu-table .menu-actions form{display:inline-flex;margin:0}
+.menu-table .menu-action{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid #edcbd7;border-radius:8px;color:#b30950;background:#fff;cursor:pointer;padding:0;text-decoration:none}
+.menu-table .menu-action svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.menu-table .menu-action:focus-visible{outline:2px solid #b30950}
+.menu-table .menu-action[aria-pressed=true]{background:#fbe4ed}
+.menu-table .product-state{display:block;font-size:11px;color:#927280;margin-top:2px}
+.menu-table [hidden],#photo-import[hidden],#menu-empty[hidden]{display:none!important}
+.menu-total{font-size:12px;color:#927280;margin-top:10px}
+@media(max-width:650px){.menu-tools .menu-search{flex-basis:100%}.menu-table th,.menu-table td{padding:6px 9px}}
+</style>
   <?php foreach ($errors as $e): ?><div class="alert err"><?= h($e) ?></div><?php endforeach; ?>
-  <form class="panel form" method="post" enctype="multipart/form-data"><?= csrf_field() ?><input type="hidden" name="action" value="import_photos"><label>Import Bliss Bites product photographs and original logo (ZIP)<input type="file" name="photo_zip" accept=".zip" required></label><button class="btn" type="submit">Import photographs</button></form>
-  <div class="toolbar">
-    <a class="btn" href="?new=1">+ Add menu item</a></div>
-  <div class="item-list">
-  <?php foreach ($rows as $i => $m): ?>
-    <div class="item-row <?= $m['available'] ? '' : 'off' ?>">
-      <?php if ($m['image']): ?><img src="<?= img($m['image']) ?>" alt=""><?php endif; ?>
-      <div class="item-info">
-        <b><?= h($m['name']) ?></b>
-        <small class="muted"><?= h($m['category']) ?> · <?= h(catalogue_price($m)) ?><?= $m['active'] ? '' : ' · Inactive' ?><?= $m['available'] ? '' : ' · <span class="status s-cancelled">Sold out</span>' ?></small>
-      </div>
-      <div class="item-actions">
-        <?= $i > 0 ? action_button('up', (int)$m['id'], '↑') : '<span class="btn ghost sm disabled">↑</span>' ?>
-        <?= $i < count($rows) - 1 ? action_button('down', (int)$m['id'], '↓') : '<span class="btn ghost sm disabled">↓</span>' ?>
-        <?= action_button('toggle', (int)$m['id'], $m['available'] ? 'Mark sold out' : 'Mark available') ?>
-        <a class="btn ghost sm" href="?edit=<?= (int)$m['id'] ?>">Edit</a>
-        <?= action_button('delete', (int)$m['id'], 'Delete', 'ghost sm danger', 'Delete “' . $m['name'] . '” from the menu?') ?>
-      </div>
-    </div>
-  <?php endforeach; ?>
-  <?php if (!$rows): ?><div class="panel"><p class="muted">No menu items yet.</p></div><?php endif; ?>
+  <div class="menu-tools">
+    <input class="menu-search" id="menu-search" type="search" placeholder="Search menu items..." aria-label="Search menu items">
+    <select id="menu-category" aria-label="Filter by category"><option value="">All Categories</option><?php foreach($ordered as $c=>$items): ?><option value="<?= h($c) ?>"><?= h($c) ?></option><?php endforeach; ?></select>
+    <button type="button" class="btn ghost" id="photo-import-toggle" aria-expanded="<?= $errors?'true':'false' ?>" aria-controls="photo-import">Import photographs</button>
+    <a class="btn" href="?new=1">+ Add menu item</a>
   </div>
+  <form id="photo-import" class="panel form" method="post" enctype="multipart/form-data" <?= $errors?'':'hidden' ?>><?= csrf_field() ?><input type="hidden" name="action" value="import_photos"><label>Import Bliss Bites product photographs and original logo (ZIP)<input type="file" name="photo_zip" accept=".zip" required></label><button class="btn" type="submit">Import photographs</button></form>
+  <div class="menu-table-wrap">
+  <table class="menu-table">
+    <thead><tr><th scope="col">Name</th><th scope="col">Photo</th><th scope="col">Category</th><th scope="col" class="price-col">Price</th><th scope="col">Unit</th><th scope="col">Action</th></tr></thead>
+    <?php foreach($ordered as $c=>$items): ?>
+    <tbody data-menu-group="<?= h($c) ?>">
+    <tr class="category-heading"><th scope="rowgroup" colspan="6"><?= h($c) ?> <span class="group-count">(<?= count($items) ?>)</span></th></tr>
+    <?php foreach($items as $m): ?>
+    <tr data-menu-item data-name="<?= h($m['name']) ?>">
+      <td><b><?= h($m['name']) ?></b><?php if(!$m['active'] || !$m['available']): ?><small class="product-state"><?= !$m['active']?'Inactive':'Sold out' ?></small><?php endif; ?></td>
+      <td><?php if($m['image']): ?><img class="product-thumb" src="<?= img($m['image']) ?>" alt="<?= h($m['name']) ?>" loading="lazy"><?php else: ?><span class="muted">—</span><?php endif; ?></td>
+      <td><?= h($m['category']) ?></td>
+      <td class="price-col"><?= $m['amount']!==null?'₹'.h(rtrim(rtrim(number_format((float)$m['amount'],2,'.',''),'0'),'.')):h($m['price']?:'—') ?></td>
+      <td class="unit-col"><?= h($m['unit']) ?></td>
+      <td><div class="menu-actions">
+        <form method="post"><?= csrf_field() ?><input type="hidden" name="id" value="<?= (int)$m['id'] ?>"><input type="hidden" name="action" value="toggle"><button class="menu-action" type="submit" title="<?= $m['available']?'Mark sold out':'Mark available' ?>" aria-label="<?= $m['available']?'Mark sold out':'Mark available' ?>" aria-pressed="<?= $m['available']?'false':'true' ?>"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><?php if($m['available']): ?><path d="m8 12 3 3 5-6"/><?php else: ?><path d="m8 8 8 8"/><?php endif; ?></svg></button></form>
+        <a class="menu-action" href="?edit=<?= (int)$m['id'] ?>" title="Edit" aria-label="Edit <?= h($m['name']) ?>"><svg viewBox="0 0 24 24"><path d="m15 5 4 4M4 20l4-1 12-12-4-4L4 15z"/></svg></a>
+        <form method="post" onsubmit="return confirm('Delete this menu item?')"><?= csrf_field() ?><input type="hidden" name="id" value="<?= (int)$m['id'] ?>"><input type="hidden" name="action" value="delete"><button class="menu-action" type="submit" title="Delete" aria-label="Delete <?= h($m['name']) ?>"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7M14 10v7"/></svg></button></form>
+      </div></td>
+    </tr>
+    <?php endforeach; ?>
+    </tbody>
+    <?php endforeach; ?>
+  </table>
+  </div>
+  <p class="menu-total" id="menu-total" aria-live="polite"></p>
+  <p class="muted" id="menu-empty" hidden>No matching menu items.</p>
+  <script>
+  (()=>{const search=document.getElementById('menu-search'),category=document.getElementById('menu-category'),groups=[...document.querySelectorAll('[data-menu-group]')],total=document.getElementById('menu-total'),empty=document.getElementById('menu-empty'),toggle=document.getElementById('photo-import-toggle'),form=document.getElementById('photo-import');
+  function filter(){const query=search.value.trim().toLowerCase();let count=0;groups.forEach(g=>{let visible=0;const match=!category.value||category.value===g.dataset.menuGroup;g.querySelectorAll('[data-menu-item]').forEach(r=>{r.hidden=!(match&&r.dataset.name.toLowerCase().includes(query));if(!r.hidden)visible++});g.hidden=visible===0;g.querySelector('.group-count').textContent='('+visible+')';count+=visible});total.textContent=count+' menu item'+(count===1?'':'s');empty.hidden=count!==0}
+  search.addEventListener('input',filter);category.addEventListener('change',filter);toggle.addEventListener('click',()=>{form.hidden=!form.hidden;toggle.setAttribute('aria-expanded',String(!form.hidden))});filter();
+  })();
+  </script>
 <?php endif;
 admin_footer();
