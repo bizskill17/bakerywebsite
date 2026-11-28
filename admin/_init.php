@@ -63,9 +63,7 @@ function admin_header(string $title, string $active): void {
 <div class="layout">
   <nav class="sidenav">
     <a class="side-logo" href="index.php" aria-label="Bliss Bites – dashboard">
-      <span class="a-logo-art"><svg class="spark s1"><use href="#i-sparkle"/></svg><svg class="spark s2"><use href="#i-sparkle"/></svg><svg class="spark s3"><use href="#i-sparkle"/></svg><svg class="muffin"><use href="#i-muffin"/></svg></span>
-      <span class="a-logo-word">Bliss Bites</span>
-      <span class="a-logo-by">by Nutan Jain</span>
+      <?php if (setting('brand_logo')): ?><img src="<?= img(setting('brand_logo')) ?>" alt="Bliss Bites by Nutan Jain" style="max-width:150px;max-height:110px;object-fit:contain"><?php else: ?><span class="a-logo-by">Bliss Bites by Nutan Jain</span><?php endif; ?>
     </a>
     <?php foreach ($nav as $file => [$label, $path]): ?>
       <a href="<?= $file ?>" class="<?= $active === $file ? 'active' : '' ?>">
