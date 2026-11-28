@@ -116,7 +116,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
       <a href="#top" class="active">Home</a>
       <a href="#menu">Menu</a>
       <a href="#about">About Us</a>
-      <a href="#gallery">Gallery</a>
+
       <a href="#contact">Contact</a>
     </nav>
 
@@ -132,7 +132,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
     <a href="#top">Home</a>
     <a href="#menu">Menu</a>
     <a href="#about">About Us</a>
-    <a href="#gallery">Gallery</a>
+
     <a href="#contact">Contact</a>
     <a href="<?= h($wa) ?>" class="btn btn-primary" target="_blank" rel="noopener"><svg><use href="#i-whatsapp"/></svg>Order on WhatsApp</a>
   </div>
@@ -204,28 +204,6 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
       </div>
     </div>
   </section>
-
-  <!-- ============ INSTAGRAM GALLERY ============ -->
-  <?php if ($gallery): ?>
-  <section class="section gallery" id="gallery">
-    <div class="container">
-      <h2 class="section-title"><svg><use href="#i-instagram"/></svg>Instagram Gallery</h2>
-      <p class="section-sub">A glimpse of our freshly baked treats</p>
-      <div class="gallery-wrap">
-        <span class="burst l desktop-only"></span>
-        <div class="gallery-grid">
-          <?php foreach ($gallery as $g): ?>
-          <a href="<?= h(($g['link'] ?? '') ?: $ig) ?>" target="_blank" rel="noopener"><img src="<?= h($g['image']) ?>" alt="<?= h($shortCap($g['caption'], 'Bliss Bites bake')) ?>" loading="lazy"></a>
-          <?php endforeach; ?>
-        </div>
-        <span class="burst r desktop-only"></span>
-      </div>
-      <div class="center desktop-only">
-        <a class="btn btn-primary btn-sm" href="<?= h($ig) ?>" target="_blank" rel="noopener"><svg><use href="#i-instagram"/></svg>Follow Us on Instagram <svg><use href="#i-arrow"/></svg></a>
-      </div>
-    </div>
-  </section>
-  <?php endif; ?>
 
   <!-- ============ BAKING STORIES ============ -->
   <?php if ($stories): ?>
