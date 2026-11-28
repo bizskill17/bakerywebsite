@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('gallery.php');
 }
 
-$rows = q('SELECT * FROM gallery ORDER BY sort_order, id')->fetchAll();
+$rows = q('SELECT * FROM gallery ORDER BY id DESC')->fetchAll();
 admin_header('Gallery', 'gallery.php');
 ?>
 <form id="gallery-upload" method="post" enctype="multipart/form-data" style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:16px">
@@ -56,4 +56,7 @@ admin_header('Gallery', 'gallery.php');
 <?php endforeach; ?>
 </div>
 <?php if (!$rows): ?><div class="panel"><p class="muted">No gallery photos yet. Add photos to display them in the homepage carousel.</p></div><?php endif; ?>
+<script>
+document.querySelectorAll('.alert:not(.err):not(.warn)').forEach(el=>{setTimeout(()=>{el.style.transition='opacity 250ms ease';el.style.opacity='0';setTimeout(()=>el.remove(),250)},3000)});
+</script>
 <?php admin_footer();
