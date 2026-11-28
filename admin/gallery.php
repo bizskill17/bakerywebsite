@@ -58,8 +58,6 @@ admin_header('Gallery', 'gallery.php');
       <button class="btn ghost sm" type="submit">Save</button>
     </form>
     <div class="item-actions">
-      <?= $i > 0 ? action_button('up', (int)$g['id'], '←') : '' ?>
-      <?= $i < count($rows) - 1 ? action_button('down', (int)$g['id'], '→') : '' ?>
       <?= action_button('delete', (int)$g['id'], 'Delete', 'ghost sm danger', 'Remove this photo from the gallery?') ?>
     </div>
   </div>
