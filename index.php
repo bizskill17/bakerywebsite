@@ -82,6 +82,18 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
 .catalogue-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}.catalogue-tabs button{font:inherit;border:1px solid #ebc6d3;border-radius:30px;background:white;color:var(--berry);padding:8px 15px;cursor:pointer}.catalogue-tabs button[aria-pressed=true]{background:var(--pink);color:white}
 .catalogue-group{margin:24px 0}.catalogue-group h3{color:var(--berry);margin-bottom:12px}.catalogue-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.catalogue-item{display:flex;align-items:center;gap:14px;padding:14px;background:white;border:1px solid #f1d2dd;border-radius:14px}.catalogue-item img{width:90px;height:90px;object-fit:cover;border-radius:10px}.catalogue-item .detail{flex:1;min-width:0}.catalogue-item h4{margin:0 0 4px}.catalogue-item p{font-size:.85rem}.catalogue-price{color:var(--berry);font-weight:600}.catalogue-item button{font-size:.8rem;white-space:nowrap}.order-products{display:grid;gap:9px}.order-products label{display:grid;grid-template-columns:1fr 90px;align-items:center;gap:10px}.order-products input{width:90px}.order-group{padding:10px 0;border-bottom:1px solid #f1d2dd}.order-group h4{margin-bottom:8px;color:var(--berry)}.order-total{font-size:1.15rem;font-weight:600;color:var(--berry);text-align:right}
 @media(max-width:650px){.catalogue-list{grid-template-columns:1fr}.catalogue-item img{width:72px;height:72px}.brand-original{max-width:100px;max-height:65px}}
+
+.catalogue-item .product-photo-trigger{border:0;padding:0;background:transparent;cursor:zoom-in;flex:none;display:block;line-height:0;border-radius:10px}
+.catalogue-item .product-photo-trigger:focus-visible{outline:3px solid #c2185b;outline-offset:3px}
+.product-dialog{box-sizing:border-box;width:min(520px,calc(100% - 32px));max-height:90vh;max-height:90dvh;overflow:auto;border:1px solid #edcbd7;border-radius:22px;padding:20px;background:#fff5f8;color:var(--ink);box-shadow:0 16px 70px #38132455;margin:auto}
+.product-dialog::backdrop{background:rgba(30,12,22,.62)}
+.product-dialog-header,.product-dialog-footer{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.product-dialog-header{margin-bottom:14px}.product-dialog-header h2{color:#a90e4c;font-size:1.2rem;margin:0}
+.product-dialog-close{width:36px;height:36px;flex:none;border:0;border-radius:50%;background:#f9e0ea;color:#a90e4c;font-size:25px;cursor:pointer}
+.product-dialog-photo{width:100%;height:auto;max-height:56vh;object-fit:contain;display:block;border-radius:12px;background:transparent}
+.product-dialog-footer{margin-top:16px;flex-wrap:wrap}.product-dialog-price{color:#a90e4c;font-weight:600;font-size:1.15rem}
+.product-dialog [hidden]{display:none!important}
+@media(max-width:480px){.product-dialog{padding:14px}.product-dialog-photo{max-height:50vh}.product-dialog-footer .btn{font-size:.9rem}}
 </style>
 </head>
 <body id="top">
@@ -166,7 +178,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
       <?php foreach($groups as $category=>$items): ?>
       <div class="catalogue-group" data-category="<?= h($category) ?>"><h3><?= h($category) ?></h3><div class="catalogue-list">
       <?php foreach($items as $m): ?><article class="catalogue-item">
-      <?php if ($m['image'] && !str_starts_with($m['image'],'images/menu-')): ?><a href="<?= h($m['image']) ?>" target="_blank" rel="noopener"><img src="<?= h($m['image']) ?>" alt="<?= h($m['name']) ?>" loading="lazy"></a><?php endif; ?>
+      <?php if ($m['image'] && !str_starts_with($m['image'],'images/menu-')): ?><button type="button" class="product-photo-trigger" data-photo="<?= h($m['image']) ?>" data-name="<?= h($m['name']) ?>" data-price-label="<?= h(catalogue_price($m)) ?>" data-product-id="<?= (int)$m['id'] ?>" data-can-order="<?= $m['available'] && $m['amount']!==null?'1':'0' ?>" aria-label="View photo of <?= h($m['name']) ?>"><img src="<?= h($m['image']) ?>" alt="<?= h($m['name']) ?>" loading="lazy"></button><?php endif; ?>
       <div class="detail"><h4><?= h($m['name']) ?></h4><?php if($m['description']): ?><p><?= h($m['description']) ?></p><?php endif; ?><span class="catalogue-price"><?= h(catalogue_price($m)) ?></span></div>
       <?php if($m['available'] && $m['amount']!==null): ?><button type="button" class="btn btn-outline" data-order="<?= (int)$m['id'] ?>">+ Add</button><?php else: ?><small><?= $m['available']?'Enquire':'Sold out' ?></small><?php endif; ?>
       </article><?php endforeach; ?></div></div><?php endforeach; ?>
@@ -281,6 +293,11 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
     </div>
   </section>
 </main>
+<dialog class="product-dialog" id="product-photo-dialog" aria-labelledby="product-dialog-name">
+  <div class="product-dialog-header"><h2 id="product-dialog-name"></h2><button type="button" class="product-dialog-close" aria-label="Close product photo" autofocus>×</button></div>
+  <img class="product-dialog-photo" id="product-dialog-image" alt="">
+  <div class="product-dialog-footer"><span class="product-dialog-price" id="product-dialog-price"></span><button type="button" class="btn btn-primary" id="product-dialog-add">+ Add to Order</button></div>
+</dialog>
 
 <!-- ============ FOOTER ============ -->
 <footer class="site-footer">
@@ -321,6 +338,15 @@ root.addEventListener('mouseenter',()=>{hover=true});root.addEventListener('mous
 win.addEventListener('touchstart',e=>{startX=e.touches[0].clientX},{passive:true});win.addEventListener('touchend',e=>{if(startX===null)return;const delta=e.changedTouches[0].clientX-startX;startX=null;if(Math.abs(delta)>35)move(index+(delta<0?1:-1))},{passive:true});
 motion.addEventListener?.('change',e=>{paused=e.matches;tween=null});window.addEventListener('resize',layout);layout();frame=requestAnimationFrame(tick);
 
+})();
+</script>
+<script>
+(()=>{const dialog=document.getElementById('product-photo-dialog'),photo=document.getElementById('product-dialog-image'),name=document.getElementById('product-dialog-name'),price=document.getElementById('product-dialog-price'),add=document.getElementById('product-dialog-add');let trigger=null,previousOverflow='';
+document.querySelectorAll('.product-photo-trigger').forEach(b=>b.addEventListener('click',()=>{trigger=b;photo.src=b.dataset.photo;photo.alt=b.dataset.name;name.textContent=b.dataset.name;price.textContent=b.dataset.priceLabel;add.hidden=b.dataset.canOrder!=='1';add.textContent='+ Add to Order';previousOverflow=document.body.style.overflow;dialog.showModal();document.body.style.overflow='hidden';}));
+dialog.querySelector('.product-dialog-close').onclick=()=>dialog.close();
+dialog.addEventListener('click',e=>{if(e.target!==dialog)return;const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close()});
+dialog.addEventListener('close',()=>{document.body.style.overflow=previousOverflow;photo.removeAttribute('src');if(trigger)trigger.focus({preventScroll:true})});
+add.onclick=()=>{if(!trigger)return;const button=trigger.closest('.catalogue-item').querySelector('[data-order]');if(button){button.click();add.textContent='Added ✓';}dialog.close()};
 })();
 </script>
 </body>
