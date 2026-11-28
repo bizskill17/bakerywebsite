@@ -6,14 +6,12 @@ require __DIR__ . '/inc/instagram.php';
 $menu    = q("SELECT * FROM menu_items WHERE active=1 AND category<>? ORDER BY sort_order, id", ['Other'])->fetchAll();
 $groups=[]; foreach ($menu as $m) $groups[$m['category']][]=$m;
 $brandLogo=setting('brand_logo');
-$gallery = q('SELECT * FROM gallery ORDER BY sort_order, id LIMIT 5')->fetchAll();
+$gallery = q('SELECT * FROM gallery ORDER BY sort_order, id')->fetchAll();
 $stories = q('SELECT * FROM stories ORDER BY sort_order, id')->fetchAll();
 
-// When Instagram sync is on, show the latest Instagram posts instead of the manual photos
+// Instagram sync affects Baking Stories only; the homepage uses the managed Gallery.
 if (ig_enabled()) {
-    $igPhotos = q("SELECT image, caption, permalink AS link FROM instagram_media WHERE kind = 'photo' ORDER BY sort_order LIMIT 5")->fetchAll();
     $igReels  = q("SELECT image, caption, permalink AS link FROM instagram_media WHERE kind = 'reel' ORDER BY sort_order LIMIT 10")->fetchAll();
-    if ($igPhotos) $gallery = $igPhotos;
     if ($igReels)  $stories = $igReels;
 }
 $shortCap = fn(?string $c, string $fallback) => ($c = trim(preg_replace('/\s+/', ' ', (string)$c))) !== '' ? mb_strimwidth($c, 0, 110, '…') : $fallback;
@@ -44,7 +42,6 @@ if (count($heroPhotos) < 4) {
         if ($src !== '' && !str_starts_with($src,'images/menu-')) $heroPhotos[$src] = (string)$m['name'];
     }
 }
-$heroPhotos = array_slice($heroPhotos, 0, 16, true);
 if (!$heroPhotos && ($heroImg = setting('authentic_hero'))) $heroPhotos[$heroImg] = 'Bliss Bites';
 $deliveryArea = setting('delivery_area', 'Guwahati');
 ?><!DOCTYPE html>
