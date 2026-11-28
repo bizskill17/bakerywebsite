@@ -277,17 +277,7 @@ $deliveryArea = setting('delivery_area', 'Guwahati');
 </dialog>
 
 <!-- ============ FOOTER ============ -->
-<footer class="site-footer">
-  <div class="container footer-inner">
-    <p class="footer-or">Prefer to chat?</p>
-    <a class="btn btn-primary btn-lg" href="<?= h($wa) ?>" target="_blank" rel="noopener"><svg class="wa"><use href="#i-whatsapp"/></svg>Order Now on WhatsApp <svg><use href="#i-arrow"/></svg></a>
-    <div class="footer-social">
-      <a class="icon-btn" href="<?= h($ig) ?>" target="_blank" rel="noopener" aria-label="Instagram"><svg><use href="#i-instagram"/></svg></a>
-      <a class="icon-btn" href="<?= h($wa) ?>" target="_blank" rel="noopener" aria-label="WhatsApp"><svg><use href="#i-whatsapp"/></svg></a>
-    </div>
-    <p class="footer-note">Bliss Bites by Nutan Jain · Home bakery in <?= h($deliveryArea) ?> · © <?= date('Y') ?></p>
-  </div>
-</footer>
+
 
 <script src="js/main.js?v=3"></script>
 <script>
