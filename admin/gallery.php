@@ -22,7 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
         case 'delete':
             $row = q('SELECT * FROM gallery WHERE id = ?', [$id])->fetch();
-            if ($row) { delete_image($row['image']); q('DELETE FROM gallery WHERE id = ?', [$id]); flash('Photo removed.'); }
+            if ($row) { delete_image($row['image']); q('DELETE FROM gallery WHERE id = ?', [$id]); }
+            if (($_POST['ajax'] ?? '') === '1') {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode(['ok'=>true,'count'=>(int)q('SELECT COUNT(*) FROM gallery')->fetchColumn()]);
+                exit;
+            }
+            if ($row) flash('Photo removed.');
             break;
         case 'up': case 'down':
             move_row('gallery', $id, $_POST['action']);
@@ -45,7 +51,7 @@ admin_header('Gallery', 'gallery.php');
 (()=>{const form=document.getElementById('gallery-upload'),files=document.getElementById('gallery-files'),button=document.getElementById('gallery-add'),status=document.getElementById('gallery-upload-status');button.addEventListener('click',()=>files.click());files.addEventListener('change',()=>{if(!files.files.length)return;button.disabled=true;button.textContent='Uploading…';status.textContent='Uploading '+files.files.length+' photo(s)…';form.requestSubmit()})})();
 </script>
 
-<p class="muted" style="font-size:13px;margin:0 0 12px;font-weight:500">Total Photos: <?= count($rows) ?></p>
+<p class="muted" style="font-size:13px;margin:0 0 12px;font-weight:500">Total Photos: <span id="gallery-count"><?= count($rows) ?></span></p><div id="gallery-notice" role="status" style="position:fixed;bottom:20px;right:20px;z-index:1000;max-width:calc(100% - 40px)" hidden></div>
 <div class="photo-grid">
 <?php foreach ($rows as $i => $g): ?>
   <div class="photo-card">
@@ -56,8 +62,12 @@ admin_header('Gallery', 'gallery.php');
   </div>
 <?php endforeach; ?>
 </div>
-<?php if (!$rows): ?><div class="panel"><p class="muted">No gallery photos yet. Add photos to display them in the homepage carousel.</p></div><?php endif; ?>
+<div id="gallery-empty" class="panel" <?= $rows?'hidden':'' ?>><p class="muted">No gallery photos yet. Add photos to display them in the homepage carousel.</p></div>
 <script>
-document.querySelectorAll('.alert:not(.err):not(.warn)').forEach(el=>{setTimeout(()=>{el.style.transition='opacity 250ms ease';el.style.opacity='0';setTimeout(()=>el.remove(),250)},3000)});
+(()=>{const grid=document.querySelector('.photo-grid'),notice=document.getElementById('gallery-notice');let timer;
+function notify(message,error=false){clearTimeout(timer);notice.className='alert '+(error?'err':'ok');notice.textContent=message;notice.hidden=false;if(!error)timer=setTimeout(()=>notice.hidden=true,3000)}
+grid.addEventListener('submit',async e=>{const form=e.target;if(!form.matches('form[data-confirm]'))return;e.preventDefault();e.stopPropagation();if(!confirm(form.dataset.confirm))return;const button=form.querySelector('button');if(button.disabled)return;button.disabled=true;try{const data=new FormData(form);data.set('ajax','1');const response=await fetch('gallery.php',{method:'POST',body:data,credentials:'same-origin'});if(!response.ok)throw Error();const result=await response.json();if(!result.ok)throw Error();form.closest('.photo-card').remove();document.getElementById('gallery-count').textContent=result.count;document.getElementById('gallery-empty').hidden=grid.querySelector('.photo-card')!==null;notify('Photo removed.')}catch(err){notify('Could not confirm deletion. Refresh the page to check before retrying.',true);button.disabled=false}});
+})();
+document.querySelectorAll('.alert:not(.err):not(.warn):not(#gallery-notice)').forEach(el=>{setTimeout(()=>{el.style.transition='opacity 250ms ease';el.style.opacity='0';setTimeout(()=>el.remove(),250)},3000)});
 </script>
 <?php admin_footer();
