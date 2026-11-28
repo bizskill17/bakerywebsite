@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="icon" href="../images/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="admin.css?v=6"><style>.auth-page .auth-card{width:min(460px,100%);padding:36px 40px;box-sizing:border-box}.auth-card label{margin:0 0 18px;gap:7px;font-size:15px}.auth-card input{min-height:46px}.auth-card .auth-logo{margin-bottom:26px}.auth-card .auth-logo small{font-size:1.1rem;font-weight:600;margin-top:10px;line-height:1.4}.auth-card .btn.block{margin-top:20px;min-height:46px}.auth-card p.muted.center{margin:16px 0 0}.password-wrap{position:relative;display:block}.auth-card .password-label{margin-bottom:7px}@media(max-width:480px){.auth-page .auth-card{padding:28px 24px}}.password-wrap input{width:100%;box-sizing:border-box;padding-right:48px}.password-toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:38px;height:34px;display:grid;place-items:center;background:transparent;border:0;color:#c2185b;cursor:pointer;border-radius:6px;padding:0}.password-toggle svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.password-toggle [hidden]{display:none!important}.password-toggle:focus-visible{outline:2px solid #c2185b}</style></head>
 <body class="auth-page">
   <form class="auth-card" method="post">
-    <div class="auth-logo">Bliss Bites<small>Admin panel</small></div>
+    <div class="auth-logo">Bliss Bites<small>Admin Panel</small></div>
     <?php foreach (flash() as [$t, $m]): ?><div class="alert <?= h($t) ?>"><?= h($m) ?></div><?php endforeach; ?>
     <?php if ($error): ?><div class="alert err"><?= h($error) ?></div><?php endif; ?>
     <?= csrf_field() ?>
