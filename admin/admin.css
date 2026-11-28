@@ -211,3 +211,8 @@ pre.code{background:#2b1a1f;color:#fde6ec;border-radius:10px;padding:10px 14px;f
   .sidenav{top:52px}
   .page-head h1{font-size:1.35rem}
 }
+
+/* Consistent cell grid across admin data tables. */
+.table th,.table td,.menu-table th,.menu-table td,.enquiry-table th,.enquiry-table td{border:1px solid #edcbd7!important}
+.table td{vertical-align:middle}
+.table .status,.enquiry-table .status{white-space:nowrap;overflow-wrap:normal;word-break:normal}
