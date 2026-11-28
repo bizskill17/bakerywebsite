@@ -56,7 +56,6 @@ admin_header('Gallery', 'gallery.php');
   </div>
 <?php endforeach; ?>
 </div>
-<?php if ($rows): ?><p class="muted" style="font-size:12px;margin-top:12px"><?= count($rows) ?> photo<?= count($rows)===1?'':'s' ?></p><?php endif; ?>
 <?php if (!$rows): ?><div class="panel"><p class="muted">No gallery photos yet. Add photos to display them in the homepage carousel.</p></div><?php endif; ?>
 <script>
 document.querySelectorAll('.alert:not(.err):not(.warn)').forEach(el=>{setTimeout(()=>{el.style.transition='opacity 250ms ease';el.style.opacity='0';setTimeout(()=>el.remove(),250)},3000)});
